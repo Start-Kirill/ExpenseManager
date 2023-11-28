@@ -159,7 +159,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/t_base_essence'
       properties:
-        datetime:
+        datetime_create:
           description: "Creation date"
           type: string
           format: yyyy-mm-dd h:m:s+hh
@@ -179,9 +179,6 @@ components:
         limit_sum:
           type: number
           format: double
-        currency:
-          type: string
-          description: "Currency code"
         expense_category:
           $ref: '#/components/schemas/ExpenseCategory'
     Transaction:

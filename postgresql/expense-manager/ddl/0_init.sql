@@ -66,9 +66,9 @@ CREATE TABLE app.limits
 (
     uuid uuid,
     expense_category text NOT NULL,
-    limit_sum numeric NOT NULL,
+    limit_sum numeric(2) NOT NULL,
     currency_uuid uuid NOT NULL,
-    datetime timestamp without time zone NOT NULL,
+    datetime_create timestamp without time zone NOT NULL,
     PRIMARY KEY (uuid),
     FOREIGN KEY (currency_uuid)
         REFERENCES app.currencies (uuid) MATCH SIMPLE
