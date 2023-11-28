@@ -1,0 +1,305 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Expense Manager
+  contact:
+    name: Kiryl Staravoitau
+    url: http://www.linkedin.com/in/kiryl-staravoitau-0aab54289
+
+servers:
+  - url: http://{host}:{port}
+    description: custom server
+    variables:
+      host:
+        description: host name
+        default: localhost
+      port:
+        description: port value
+        default: "80"
+
+tags:
+  - name: "Transactions"
+    description: "Interaction with transactions"
+  - name: "Limits"
+    description: "Interaction with limits"
+
+paths:
+  /api/v1/transactions:
+    post:
+      tags:
+        - "Transactions"
+      summary: "Adding a new transaction"
+      requestBody:
+        $ref: "#/components/requestBodies/TransactionCreate"
+      responses:
+        '201':
+          description: "Transaction added"
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+    get:
+      tags:
+        - "Transactions"
+      summary: "Recieve transactions list"
+      parameters:
+        - in: query
+          name: exceeded_only
+          schema:
+            type: boolean
+            default: false
+          description: Display only exceeded transactions
+          required: false
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+
+  /api/v1/limits:
+    post:
+      tags:
+        - "Limits"
+      summary: "Adding a new limit"
+      requestBody:
+        $ref: "#/components/requestBodies/LimitCreate"
+      responses:
+        '201':
+          description: "A new limit was added"
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+components:
+  requestBodies:
+    TransactionCreate:
+      description: Body for transaction creation
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TransactionCreate'
+    Transaction:
+      description: Body for transaction
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Transaction'
+    LimitCreate:
+      description: Body for limit creation
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/LimitCreate'
+  responses:
+    Bad_Request:
+      description: The request is invalid. The server cannot process the request
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - type: array
+                items:
+                  $ref: '#/components/schemas/t_error_response'
+              - $ref: '#/components/schemas/t_structured_error_response'
+          examples:
+            t_error_response:
+              value:
+                - logref: error
+                  message:  The request contains incorrect data. Change the request and send it again
+            t_structured_error_response:
+              value:
+                logref: structured_error
+                errors:
+                  - field: time_unit
+                    message: Field must be a positive number
+    Internal_Server_Error:
+      description: Internal Server Error. The server was unable to process the request correctly
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/t_error_response'
+          example:
+            - logref: error
+              message:  The server was unable to process the request correctly. Please contact the administrator
+  schemas:
+    ExpenseCategory:
+      type: string
+      description: |
+        Expense type:
+          * `PRODUCT` - Product
+          * `SERVICE` - Service
+      enum:
+        - "PRODUCT"
+        - "SERVICE"
+    Currency:
+      type: object
+      description: Currenсy
+      allOf:
+        - $ref: '#/components/schemas/t_base_essence'
+      properties:
+        name:
+          type: string
+          description: "Currency code"
+    Limit:
+      type: object
+      description: Limit
+      allOf:
+        - $ref: '#/components/schemas/t_base_essence'
+      properties:
+        datetime:
+          description: "Creation date"
+          type: string
+          format: yyyy-mm-dd h:m:s+hh
+          readOnly: true
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          description: "Currency code"
+        expense_type:
+          $ref: '#/components/schemas/ExpenseCategory'
+    LimitCreate:
+      type: object
+      description: Limit
+      properties:
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          description: "Currency code"
+        expense_type:
+          $ref: '#/components/schemas/ExpenseCategory'
+    Transaction:
+      type: object
+      description: Transaction
+      allOf:
+        - $ref: '#/components/schemas/t_base_essence'
+      properties:
+        datetime:
+          description: "Creation date"
+          type: string
+          format: yyyy-mm-dd h:m:s+hh
+          readOnly: true
+        sum:
+          type: number
+          format: float
+        currency_shortname:
+          type: string
+          description: "Currency code"
+        expense_category:
+          $ref: '#/components/schemas/ExpenseCategory'
+        account_from:
+          type: string
+          description: "Customer's bank account"
+        account_to:
+          type: string
+          description: "Counterparty's bank account"
+        limit_exceeded:
+          type: boolean
+          description: "If transaction exceeded the limit"
+        limit_sum:
+          type: number
+          format: double
+        limit_datetime:
+          description: "Creation date"
+          type: string
+          format: yyyy-mm-dd h:m:s+hh
+          readOnly: true
+        limit_curency:
+          type: string
+          description: "Limit's currency"
+    TransactionCreate:
+      type: object
+      description: Transaction
+      properties:
+        datetime:
+          description: Creation date
+          type: string
+          format: yyyy-mm-dd h:m:s+hh
+        sum:
+          type: number
+          format: double
+        currency_shortname:
+          type: string
+          description: "Currency code"
+        expense_category:
+          $ref: '#/components/schemas/ExpenseCategory'
+        account_from:
+          type: string
+          description: "Customer's bank account"
+        account_to:
+          type: string
+          description: "Counterparty's bank account"
+    t_base_essence:
+      type: object
+      description: Base entity description.
+      required:
+        - uuid
+      properties:
+        uuid:
+          description: Unique entity identifier
+          type: string
+          format: uuid
+          readOnly: true
+    t_error_response:
+      type: object
+      description: Error. Contains a general description of the error
+      required:
+        - logref
+        - message
+      properties:
+        logref:
+          type: string
+          description: |
+            Error type (intended for machine processing):
+              * `error` - A sign that the error is not associated with the field
+          enum:
+            - "error"
+        message:
+          description: Error message
+          type: string
+          example: The request contains incorrect data. Change the request and send it again
+
+    t_structured_error_response:
+      type: object
+      description: Error. Contains a description of errors with references to entity fields
+      required:
+        - logref
+        - errors
+      properties:
+        logref:
+          type: string
+          description: |
+            Error type (intended for machine processing):
+              * `structured_error` - A sign that the error is associated with the field
+          enum:
+            - "structured_error"
+        errors:
+          description: List of errors
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message
+                example: Must be a positive number
+              field:
+                type: string
+                description: Name of the field with which the message is associated
+                example: time_unit

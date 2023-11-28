@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "ExpenseManager DB",
+      "Group": "Server Group 1",
+      "Port": 5432,
+      "Username": "expense_manager",
+      "Host": "db",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}

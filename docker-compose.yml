@@ -1,0 +1,41 @@
+version: '3.5'
+services:
+  db:
+    build: postgresql
+    image: expensemanager_postgresql:1.0.0
+    restart: always
+
+    environment:
+      POSTGRES_USER: expense_manager
+      POSTGRES_PASSWORD: q1w2e3r4
+    networks:
+      - expense_manager_ntwrk
+  pgadmin:
+    build: pgadmin
+    image: expensemanager_pgadmin:1.0.0
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "82:80"
+    networks:
+      - expense_manager_ntwrk
+
+  swagger-ui:
+    build: swagger-ui
+    image: expensemanager_swagger-ui:1.0.0
+    ports:
+      - "81:8080"
+    networks:
+      - expense_manager_ntwrk
+
+  expense-manager:
+    build: expense-manager
+    image: expensemanager_expense-manager:1.0.0
+    networks:
+      - expense_manager_ntwrk
+
+networks:
+  expense_manager_ntwrk:
+    name: expense_manager_ntwrk
