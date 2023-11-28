@@ -92,7 +92,7 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public List<Transaction> getExceeded() {
-        return this.transactionDao.findAllByIsExceeded();
+        return this.transactionDao.findAllByIsExceeded(true);
     }
 
     //    TODO

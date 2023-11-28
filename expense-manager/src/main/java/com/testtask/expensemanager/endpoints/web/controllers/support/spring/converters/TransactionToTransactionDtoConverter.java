@@ -19,7 +19,7 @@ public class TransactionToTransactionDtoConverter implements Converter<Transacti
         transactionDto.setLimitExceeded(source.isExceeded());
 
         transactionDto.setLimitSum(source.getLimit().getLimitSum());
-        transactionDto.setLimitDateTime(source.getLimit().getDateTime());
+        transactionDto.setLimitDateTime(source.getLimit().getDateTimeCreate());
         transactionDto.setLimitCurrencyName(source.getLimit().getCurrency().getName());
 
 
