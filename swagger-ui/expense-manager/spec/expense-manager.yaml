@@ -164,25 +164,25 @@ components:
           type: string
           format: yyyy-mm-dd h:m:s+hh
           readOnly: true
-        amount:
+        limit_sum:
           type: number
           format: double
         currency:
           type: string
           description: "Currency code"
-        expense_type:
+        expense_category:
           $ref: '#/components/schemas/ExpenseCategory'
     LimitCreate:
       type: object
       description: Limit
       properties:
-        amount:
+        limit_sum:
           type: number
           format: double
         currency:
           type: string
           description: "Currency code"
-        expense_type:
+        expense_category:
           $ref: '#/components/schemas/ExpenseCategory'
     Transaction:
       type: object
@@ -195,7 +195,7 @@ components:
           type: string
           format: yyyy-mm-dd h:m:s+hh
           readOnly: true
-        sum:
+        trans_sum:
           type: number
           format: float
         currency_shortname:
@@ -220,7 +220,7 @@ components:
           type: string
           format: yyyy-mm-dd h:m:s+hh
           readOnly: true
-        limit_curency:
+        limit_currency:
           type: string
           description: "Limit's currency"
     TransactionCreate:
@@ -231,7 +231,7 @@ components:
           description: Creation date
           type: string
           format: yyyy-mm-dd h:m:s+hh
-        sum:
+        trans_sum:
           type: number
           format: double
         currency_shortname:

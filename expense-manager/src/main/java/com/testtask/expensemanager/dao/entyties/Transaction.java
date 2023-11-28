@@ -3,6 +3,7 @@ package com.testtask.expensemanager.dao.entyties;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -10,43 +11,45 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "transactions")
 public class Transaction implements Serializable {
 
     private static final long serialVersionUID = 42L;
 
-    @Getter
+
     @Id
     private UUID uuid;
 
-    @Getter
+
     @Column(name = "datetime")
     private LocalDateTime dateTime;
 
-    @Getter
+
     @ManyToOne
     @JoinColumn(name = "currency_uuid")
     private Currency currency;
 
-    @Getter
+
     @Enumerated(EnumType.STRING)
     @Column(name = "expense_category")
     private ExpenseCategory expenseCategory;
 
-    @Getter
+
     @Column(name = "account_from")
     private String accountFrom;
 
-    @Getter
+
     @Column(name = "account_to")
     private String accountTo;
 
-    @Getter
+
     @Column(name = "trans_sum")
     private BigDecimal transSum;
 
-    @Getter
+
     @ManyToOne
     @JoinColumn(name = "limit_uuid")
     private Limit limit;
@@ -69,45 +72,6 @@ public class Transaction implements Serializable {
         this.isExceeded = isExceeded;
     }
 
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
-        this.dateTime = dateTime;
-    }
-
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
-    }
-
-    public void setExpenseCategory(ExpenseCategory expenseCategory) {
-        this.expenseCategory = expenseCategory;
-    }
-
-    public void setAccountFrom(String accountFrom) {
-        this.accountFrom = accountFrom;
-    }
-
-    public void setAccountTo(String accountTo) {
-        this.accountTo = accountTo;
-    }
-
-    public void setTransSum(BigDecimal transSum) {
-        this.transSum = transSum;
-    }
-
-    public void setLimit(Limit limit) {
-        this.limit = limit;
-    }
-
-    public boolean isExceeded() {
-        return isExceeded;
-    }
-
-    public void setExceeded(boolean exceeded) {
-        isExceeded = exceeded;
-    }
 
     @Override
     public boolean equals(Object o) {
