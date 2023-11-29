@@ -1,8 +1,7 @@
 package com.testtask.expensemanager.services.exceptions;
 
 import com.testtask.expensemanager.core.errors.ErrorResponse;
-import com.testtask.expensemanager.core.exceptions.CommonErrorException;
-import com.testtask.expensemanager.core.exceptions.CommonInternalErrorException;
+import com.testtask.expensemanager.core.exceptions.common.CommonInternalErrorException;
 
 import java.util.List;
 

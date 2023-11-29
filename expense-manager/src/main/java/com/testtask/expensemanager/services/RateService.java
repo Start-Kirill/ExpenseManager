@@ -53,11 +53,34 @@ public class RateService implements IRateService {
         Rate rate = this.conversionService.convert(rateCreateDto, Rate.class);
 
         rate.setUuid(UUID.randomUUID());
-        rate.setFirstCurrency(this.currencyService.get(rateCreateDto.getFirstCurrencyUuid()));
-        rate.setSecondCurrency(this.currencyService.get(rateCreateDto.getSecondCurrencyUuid()));
+        rate.setFirstCurrency(this.currencyService.get(rateCreateDto.getFirstCurrencyName()));
+        rate.setSecondCurrency(this.currencyService.get(rateCreateDto.getSecondCurrencyName()));
 
         try {
-            return this.rateDao.save(rate);
+            return this.rateDao.saveAndFlush(rate);
+        } catch (Exception ex) {
+            throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
+        }
+    }
+
+    @Override
+    public Rate getFirstUpToDate() {
+        return this.rateDao.findTopByOrderByDateDesc();
+    }
+
+    @Override
+    public List<Rate> saveAll(List<RateCreateDto> rateCreateDto) {
+
+        List<Rate> rates = rateCreateDto.stream().map(rc -> {
+            Rate rate = this.conversionService.convert(rc, Rate.class);
+            rate.setUuid(UUID.randomUUID());
+            rate.setFirstCurrency(this.currencyService.get(rc.getFirstCurrencyName()));
+            rate.setSecondCurrency(this.currencyService.get(rc.getSecondCurrencyName()));
+            return rate;
+        }).toList();
+
+        try {
+            return this.rateDao.saveAllAndFlush(rates);
         } catch (Exception ex) {
             throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
         }

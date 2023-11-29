@@ -4,13 +4,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-@Table(name = "transactions")
+@Table(name = "currencies")
 public class Currency implements Serializable {
 
     private static final long serialVersionUID = 42L;
@@ -21,27 +27,9 @@ public class Currency implements Serializable {
     @Column
     private String name;
 
-    public Currency() {
-    }
 
     public Currency(UUID uuid, String name) {
         this.uuid = uuid;
-        this.name = name;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
         this.name = name;
     }
 

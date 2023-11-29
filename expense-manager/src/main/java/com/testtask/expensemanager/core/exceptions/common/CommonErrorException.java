@@ -1,4 +1,4 @@
-package com.testtask.expensemanager.core.exceptions;
+package com.testtask.expensemanager.core.exceptions.common;
 
 
 
