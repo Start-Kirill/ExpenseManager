@@ -7,18 +7,18 @@ import com.testtask.expensemanager.dao.api.ICurrencyDao;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.exceptions.FailedSaveCurrencyException;
+import com.testtask.expensemanager.services.exceptions.InvalidCurrencyBodyException;
 import com.testtask.expensemanager.services.exceptions.SuchCurrencyNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CurrencyService implements ICurrencyService {
 
+    private static final String NAME_FIELD_NAME = "name";
     private final ICurrencyDao currencyDao;
 
     private final ConversionService conversionService;
@@ -75,9 +75,17 @@ public class CurrencyService implements ICurrencyService {
     }
 
 
-    //    TODO
     private void validate(CurrencyCreateDto currencyCreateDto) {
 
+        Map<String, String> errors = new HashMap<>();
 
+        String name = currencyCreateDto.getName();
+        if (name == null || name.isEmpty()) {
+            errors.put(NAME_FIELD_NAME, "Filed should be filled");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new InvalidCurrencyBodyException(errors);
+        }
     }
 }

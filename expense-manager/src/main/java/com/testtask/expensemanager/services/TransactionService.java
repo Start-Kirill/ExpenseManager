@@ -11,18 +11,29 @@ import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.ILimitService;
 import com.testtask.expensemanager.services.api.ITransactionService;
 import com.testtask.expensemanager.services.exceptions.FailedSaveTransactionException;
+import com.testtask.expensemanager.services.exceptions.InvalidTransactionBodyException;
+import com.testtask.expensemanager.services.exceptions.SuchCurrencyNotExistsException;
 import com.testtask.expensemanager.services.exceptions.SuchTransactionNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class TransactionService implements ITransactionService {
+
+    private static final String CURRENCY_NAME_FIELD_NAME = "currency_shortname";
+
+    private static final String TRANS_SUM_FILED_NANE = "trans_sum";
+
+    private static final String ACCOUNT_FROM_FIELD_NAME = "account_from";
+
+    private static final String ACCOUNT_TO_FIELD_NAME = "account_to";
+
+    private static final String DATE_TIME_FIELD_NAME = "datetime";
 
     private final ITransactionDao transactionDao;
 
@@ -95,8 +106,50 @@ public class TransactionService implements ITransactionService {
         return this.transactionDao.findAllByIsExceeded(true);
     }
 
-    //    TODO
+
     private void validate(TransactionCreateDto transactionCreateDto) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        String currencyName = transactionCreateDto.getCurrencyName();
+
+        if (currencyName == null || currencyName.isEmpty()) {
+            errors.put(CURRENCY_NAME_FIELD_NAME, "Field should be filled");
+        }
+
+        try {
+            this.currencyService.get(currencyName);
+        } catch (SuchCurrencyNotExistsException ex) {
+            errors.put(CURRENCY_NAME_FIELD_NAME, ex.getErrors().get(0).getMessage());
+        }
+
+        BigDecimal transSum = transactionCreateDto.getTransSum();
+
+        if (transSum == null) {
+            errors.put(TRANS_SUM_FILED_NANE, "Filed should be filled");
+        } else if (transSum.compareTo(BigDecimal.ZERO) < 0) {
+            errors.put(TRANS_SUM_FILED_NANE, "Value must be positive");
+        }
+
+        String accountFrom = transactionCreateDto.getAccountFrom();
+        if (accountFrom == null || accountFrom.isEmpty()) {
+            errors.put(ACCOUNT_FROM_FIELD_NAME, "Filed should be filled");
+        }
+
+        String accountTO = transactionCreateDto.getAccountTo();
+        if (accountTO == null || accountTO.isEmpty()) {
+            errors.put(ACCOUNT_TO_FIELD_NAME, "Filed should be filled");
+        }
+
+        LocalDateTime dateTime = transactionCreateDto.getDateTime();
+        if (dateTime.isAfter(LocalDateTime.now())) {
+            errors.put(DATE_TIME_FIELD_NAME, "Such a time has not yet come");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new InvalidTransactionBodyException(errors);
+        }
+
     }
 
 
