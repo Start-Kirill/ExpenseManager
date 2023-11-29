@@ -1,10 +1,13 @@
 package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.LimitCreateDto;
+import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.ILimitDao;
 import com.testtask.expensemanager.dao.entyties.Limit;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.ILimitService;
+import com.testtask.expensemanager.services.exceptions.SuchLimitNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -79,13 +83,12 @@ public class LimitService implements ILimitService {
     public Limit getUpToDate() {
         try {
             return this.limitDao.findTopByOrderByDateTimeCreateDesc().orElseThrow();
-//            TODO
-        } catch (Exception ex) {
-            throw new RuntimeException();
+        } catch (NoSuchElementException ex) {
+            throw new SuchLimitNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "There is no any limit in database")));
         }
     }
 
-//    TODO
+    //    TODO
     private void validate(LimitCreateDto limitCreateDto) {
     }
 

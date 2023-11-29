@@ -1,6 +1,8 @@
 package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.TransactionCreateDto;
+import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.ITransactionDao;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Limit;
@@ -8,6 +10,8 @@ import com.testtask.expensemanager.dao.entyties.Transaction;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.ILimitService;
 import com.testtask.expensemanager.services.api.ITransactionService;
+import com.testtask.expensemanager.services.exceptions.FailedSaveTransactionException;
+import com.testtask.expensemanager.services.exceptions.SuchTransactionNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,9 +69,8 @@ public class TransactionService implements ITransactionService {
 
         try {
             return this.transactionDao.save(transaction);
-//            TODO
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new FailedSaveTransactionException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving transaction failed")));
         }
 
     }
@@ -76,12 +79,9 @@ public class TransactionService implements ITransactionService {
     public Transaction get(UUID uuid) {
         try {
             return this.transactionDao.findById(uuid).orElseThrow();
-//            TODO
         } catch (NoSuchElementException ex) {
-            throw new RuntimeException();
+            throw new SuchTransactionNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "There is no such transaction in database")));
         }
-
-
     }
 
     @Override

@@ -1,14 +1,19 @@
 package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.CurrencyCreateDto;
+import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.ICurrencyDao;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.services.api.ICurrencyService;
+import com.testtask.expensemanager.services.exceptions.FailedSaveCurrencyException;
+import com.testtask.expensemanager.services.exceptions.SuchCurrencyNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -29,9 +34,8 @@ public class CurrencyService implements ICurrencyService {
     public Currency get(UUID uuid) {
         try {
             return this.currencyDao.findById(uuid).orElseThrow();
-//            TODO
-        } catch (Exception ex) {
-            throw new RuntimeException();
+        } catch (NoSuchElementException ex) {
+            throw new SuchCurrencyNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "Currency with such name does not exist")));
         }
 
     }
@@ -41,9 +45,8 @@ public class CurrencyService implements ICurrencyService {
     public Currency get(String name) {
         try {
             return this.currencyDao.findByName(name).orElseThrow();
-//            TODO
-        } catch (Exception ex) {
-            throw new RuntimeException();
+        } catch (NoSuchElementException ex) {
+            throw new SuchCurrencyNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "Currency with such name is note stored in database")));
         }
 
     }
@@ -62,14 +65,14 @@ public class CurrencyService implements ICurrencyService {
 
         Currency currency = this.conversionService.convert(currencyCreateDto, Currency.class);
         currency.setUuid(UUID.randomUUID());
+
         try {
             return this.currencyDao.save(currency);
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new FailedSaveCurrencyException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving currency failed")));
         }
+
     }
-
-
 
 
     //    TODO
