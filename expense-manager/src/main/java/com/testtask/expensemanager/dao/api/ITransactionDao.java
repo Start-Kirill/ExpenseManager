@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface ITransactionDao extends JpaRepository<Transaction, UUID> {
 
-    List<Transaction> findAllByIsExceeded();
+    List<Transaction> findAllByIsExceeded(boolean isExceeded);
 }

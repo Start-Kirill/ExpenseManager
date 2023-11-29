@@ -1,14 +1,19 @@
 package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.RateCreateDto;
+import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.IRateDao;
 import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.IRateService;
+import com.testtask.expensemanager.services.exceptions.FailedSaveRateException;
+import com.testtask.expensemanager.services.exceptions.SuchRateNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -32,9 +37,8 @@ public class RateService implements IRateService {
     public Rate get(UUID uuid) {
         try {
             return this.rateDao.findById(uuid).orElseThrow();
-//            TODO
-        } catch (Exception ex) {
-            throw new RuntimeException();
+        } catch (NoSuchElementException ex) {
+            throw new SuchRateNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "There is no such rate in database")));
         }
     }
 
@@ -54,9 +58,9 @@ public class RateService implements IRateService {
 
         try {
             return this.rateDao.save(rate);
-//            TODO
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
         }
     }
 }
+

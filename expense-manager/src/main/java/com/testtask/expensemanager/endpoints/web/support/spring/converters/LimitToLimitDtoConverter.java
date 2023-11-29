@@ -1,4 +1,4 @@
-package com.testtask.expensemanager.endpoints.web.controllers.support.spring.converters;
+package com.testtask.expensemanager.endpoints.web.support.spring.converters;
 
 import com.testtask.expensemanager.core.dtos.LimitDto;
 import com.testtask.expensemanager.dao.entyties.Limit;

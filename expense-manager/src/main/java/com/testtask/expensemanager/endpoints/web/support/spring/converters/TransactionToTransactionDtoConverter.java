@@ -1,4 +1,4 @@
-package com.testtask.expensemanager.endpoints.web.controllers.support.spring.converters;
+package com.testtask.expensemanager.endpoints.web.support.spring.converters;
 
 import com.testtask.expensemanager.core.dtos.TransactionDto;
 import com.testtask.expensemanager.dao.entyties.Transaction;
@@ -19,7 +19,7 @@ public class TransactionToTransactionDtoConverter implements Converter<Transacti
         transactionDto.setLimitExceeded(source.isExceeded());
 
         transactionDto.setLimitSum(source.getLimit().getLimitSum());
-        transactionDto.setLimitDateTime(source.getLimit().getDateTime());
+        transactionDto.setLimitDateTime(source.getLimit().getDateTimeCreate());
         transactionDto.setLimitCurrencyName(source.getLimit().getCurrency().getName());
 
 
