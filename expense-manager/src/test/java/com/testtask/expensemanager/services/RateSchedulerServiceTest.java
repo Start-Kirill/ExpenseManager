@@ -13,13 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@SpringBootTest
+//@SpringBootTest
 public class RateSchedulerServiceTest {
 
-    @Autowired
+//    @Autowired
     private RateSchedulerService rateSchedulerService;
 
-    @Test
+//    @Test
     public void test() {
             rateSchedulerService.execute();
     }

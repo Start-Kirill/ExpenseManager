@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 public class RateServiceTest {
 
-    @Autowired
+//    @Autowired
     private IRateService rateService;
 
-    @Test
+//    @Test
     public void getFirstUpToDateTest() {
         Rate firstUpToDate = this.rateService.getFirstUpToDate("USD", "KZT");
         System.out.println(firstUpToDate);

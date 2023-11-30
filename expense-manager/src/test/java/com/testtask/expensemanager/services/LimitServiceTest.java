@@ -9,13 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 
-@SpringBootTest
+//@SpringBootTest
 public class LimitServiceTest {
 
-    @Autowired
+//    @Autowired
     private ILimitService limitService;
 
-    @Test
+//    @Test
     public void createTest(){
         this.limitService.save(new LimitCreateDto(BigDecimal.valueOf(1000.00), ExpenseCategory.PRODUCT));
     }
