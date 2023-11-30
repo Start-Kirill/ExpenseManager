@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public interface ILimitService extends ICRUDService<Limit, LimitCreateDto> {
 
-    Limit getUpToDate();
+    Limit getUpToDate(ExpenseCategory expenseCategory);
 
-    BigDecimal getReminder(UUID uuid);
 }

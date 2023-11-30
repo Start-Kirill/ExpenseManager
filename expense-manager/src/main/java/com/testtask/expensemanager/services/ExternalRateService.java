@@ -9,6 +9,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,17 @@ public class ExternalRateService implements IExternalRateService {
         return stringExternalRateDtoMap;
     }
 
+    @Override
+    public Map<String, ExternalRateDto> getLastThirty(List<Pair<String, String>> currencyPairs) {
+        String symbolParam = createSymbolParam(currencyPairs);
+        String apiKey = this.twelvedataProps.getKey();
+
+        Map<String, ExternalRateDto> lastThirty = this.rateClient.get(symbolParam, DAILY_INTERVAL_NAME, LocalDate.now().minusDays(30), LocalDate.now().plusDays(1), apiKey);
+
+        return lastThirty;
+    }
+
+
     private String createSymbolParam(List<Pair<String, String>> pairs) {
 
 
@@ -58,14 +70,18 @@ public class ExternalRateService implements IExternalRateService {
                 isNeedComma = true;
             }
 
-            StringBuilder strPair = new StringBuilder(pair.getFirst());
-            strPair.append("/");
-            strPair.append(pair.getSecond());
-
-            stringBuilder.append(strPair);
+            stringBuilder.append(makeStrPair(pair));
         }
 
 
         return stringBuilder.toString();
+    }
+
+    private String makeStrPair(Pair<String, String> pair) {
+        StringBuilder strPair = new StringBuilder(pair.getFirst());
+        strPair.append("/");
+        strPair.append(pair.getSecond());
+
+        return strPair.toString();
     }
 }

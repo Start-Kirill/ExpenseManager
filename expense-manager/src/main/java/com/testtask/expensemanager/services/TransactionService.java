@@ -2,23 +2,21 @@ package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.TransactionCreateDto;
 import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.ITransactionDao;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Limit;
+import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.dao.entyties.Transaction;
-import com.testtask.expensemanager.services.api.ICurrencyService;
-import com.testtask.expensemanager.services.api.ILimitService;
-import com.testtask.expensemanager.services.api.ITransactionService;
-import com.testtask.expensemanager.services.exceptions.FailedSaveTransactionException;
-import com.testtask.expensemanager.services.exceptions.InvalidTransactionBodyException;
-import com.testtask.expensemanager.services.exceptions.SuchCurrencyNotExistsException;
-import com.testtask.expensemanager.services.exceptions.SuchTransactionNotExistsException;
+import com.testtask.expensemanager.services.api.*;
+import com.testtask.expensemanager.services.exceptions.*;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -35,26 +33,35 @@ public class TransactionService implements ITransactionService {
 
     private static final String DATE_TIME_FIELD_NAME = "datetime";
 
+    private static final String DOLLAR_USA_CURRENCY_NAME = "USD";
+
     private final ITransactionDao transactionDao;
 
     private final ICurrencyService currencyService;
 
     private final ILimitService limitService;
 
+    private final IRateService rateService;
+
     private final ConversionService conversionService;
+
+    private final IRateSchedulerService rateSchedulerService;
 
     public TransactionService(ITransactionDao transactionDao,
                               ConversionService conversionService,
                               ICurrencyService currencyService,
-                              ILimitService limitService) {
+                              ILimitService limitService,
+                              IRateService rateService,
+                              IRateSchedulerService rateSchedulerService) {
         this.transactionDao = transactionDao;
         this.conversionService = conversionService;
         this.currencyService = currencyService;
         this.limitService = limitService;
+        this.rateService = rateService;
+        this.rateSchedulerService = rateSchedulerService;
     }
 
 
-    //    TODO подумать получше над этой задачей. Как составить правильный sql запрос. Возможно нужно хранить в базе эквивалентное значение в долларах ???
     @Transactional
     @Override
     public Transaction save(TransactionCreateDto transactionCreateDto) {
@@ -69,14 +76,19 @@ public class TransactionService implements ITransactionService {
         Currency currency = this.currencyService.get(currencyName);
         transaction.setCurrency(currency);
 
-        Limit limit = this.limitService.getUpToDate();
+        Limit limit = this.limitService.getUpToDate(transactionCreateDto.getExpenseCategory());
         transaction.setLimit(limit);
 
-        //        TODO может быть другая валюта
-        BigDecimal rawReminder = this.limitService.getReminder(limit.getUuid());
-        BigDecimal reminder = rawReminder.subtract(transaction.getTransSum());
-        transaction.setExceeded(reminder.compareTo(BigDecimal.ZERO) < 0);
+        BigDecimal transSum = transactionCreateDto.getTransSum();
+        if (!currencyName.equals(DOLLAR_USA_CURRENCY_NAME)) {
+            transaction.setTransSumInUSD(calculateInUsd(currencyName, transSum));
+        } else {
+            transaction.setTransSumInUSD(transSum);
+        }
 
+        BigDecimal actualExpense = this.getActualExpense(transactionCreateDto.getExpenseCategory());
+
+        transaction.setExceeded(limit.getLimitSum().compareTo(actualExpense.add(transaction.getTransSumInUSD())) < 0);
 
         try {
             return this.transactionDao.save(transaction);
@@ -104,6 +116,34 @@ public class TransactionService implements ITransactionService {
     @Override
     public List<Transaction> getExceeded() {
         return this.transactionDao.findAllByIsExceeded(true);
+    }
+
+    @Override
+    public BigDecimal getActualExpense(ExpenseCategory expenseCategory) {
+        BigDecimal actualExpense = this.transactionDao.findActualExpense(expenseCategory.toString());
+        return actualExpense == null ? BigDecimal.ZERO : actualExpense;
+    }
+
+
+    private BigDecimal calculateInUsd(String currencyName, BigDecimal transSum) {
+        BigDecimal transSumUsd = null;
+
+        Rate rate = this.rateService.getFirstUpToDate(currencyName, DOLLAR_USA_CURRENCY_NAME);
+        if (rate != null) {
+            BigDecimal toUsdRate = rate.getValue();
+            transSumUsd = transSum.multiply(toUsdRate).setScale(2, RoundingMode.HALF_UP);
+        } else {
+            rate = this.rateService.getFirstUpToDate(DOLLAR_USA_CURRENCY_NAME, currencyName);
+            if (rate != null) {
+                BigDecimal fromUsdRate = rate.getValue();
+                transSumUsd = transSum.divide(fromUsdRate, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
+            } else {
+                this.rateSchedulerService.execute();
+                throw new FailedRateAccessException(List.of(new ErrorResponse(ErrorType.ERROR, "The server was unable to process the request correctly. Please try again later or contact administrator")));
+            }
+        }
+
+        return transSumUsd;
     }
 
 

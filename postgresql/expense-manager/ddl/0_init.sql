@@ -88,6 +88,7 @@ CREATE TABLE app.transactions
     account_from text NOT NULL,
     account_to text NOT NULL,
     trans_sum numeric NOT NULL,
+    trans_sum_in_usd numeric NOT NULL,
     limit_uuid uuid NOT NULL,
     exceeded boolean NOT NULL,
     datetime timestamp without time zone NOT NULL,

@@ -21,9 +21,5 @@ public interface IRateClient {
                                      @RequestParam(name = "end_date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
                                      @RequestParam String apikey);
 
-    @GetMapping
-    Map<String, ExternalRateDto> getLastThirty(@RequestParam String symbol,
-                                               @RequestParam String interval,
-                                               @RequestParam String apiKey);
 
 }

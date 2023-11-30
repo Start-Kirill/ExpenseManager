@@ -2,8 +2,8 @@ package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.ExternalRateCreateDto;
 import com.testtask.expensemanager.core.dtos.ExternalRateDto;
-import com.testtask.expensemanager.core.dtos.ExternalRateValueDto;
 import com.testtask.expensemanager.core.dtos.RateCreateDto;
+import com.testtask.expensemanager.core.utils.CustomConverter;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.services.api.ICurrencyService;
@@ -47,17 +47,27 @@ public class RateSchedulerService implements IRateSchedulerService {
     @Scheduled(cron = "1 0 0 * * ?")
     @Override
     public void execute() {
+
         Rate firstUpToDate = this.rateService.getFirstUpToDate();
+        List<Currency> currencies = this.currencyService.get();
+        List<RateCreateDto> rateCreateDtos = null;
 
-        if (firstUpToDate == null || !firstUpToDate.getDate().toLocalDate().equals(LocalDate.now())) {
-            List<Currency> currencies = this.currencyService.get();
+        if (firstUpToDate == null) {
+            List<Pair<String, String>> pairs = createPairs(currencies);
 
+            Map<String, ExternalRateDto> lastThirty = this.externalRateService.getLastThirty(pairs);
+
+            rateCreateDtos = CustomConverter.convert(lastThirty);
+
+        } else if (!firstUpToDate.getDate().toLocalDate().equals(LocalDate.now())) {
             ExternalRateCreateDto externalRateCreateDto = createForToday(currencies);
 
             Map<String, ExternalRateDto> externalRates = this.externalRateService.get(externalRateCreateDto);
 
-            List<RateCreateDto> rateCreateDtos = convert(externalRates);
+            rateCreateDtos = CustomConverter.convert(externalRates);
+        }
 
+        if (rateCreateDtos != null) {
             this.rateService.saveAll(rateCreateDtos);
         }
 
@@ -82,20 +92,6 @@ public class RateSchedulerService implements IRateSchedulerService {
         }
 
         return pairs;
-    }
-
-    private List<RateCreateDto> convert(Map<String, ExternalRateDto> externalRates) {
-        List<RateCreateDto> rateCreateDtos = new ArrayList<>();
-        for (Map.Entry<String, ExternalRateDto> entry : externalRates.entrySet()) {
-            List<ExternalRateValueDto> externalRateValueDtos = entry.getValue().getValues();
-            if (externalRateValueDtos != null) {
-                String[] currencyNames = entry.getKey().split("/");
-                String firstCurrencyName = currencyNames[0];
-                String secondCurrencyName = currencyNames[1];
-                externalRateValueDtos.forEach(ex -> rateCreateDtos.add(new RateCreateDto(firstCurrencyName, secondCurrencyName, ex.getValue(), ex.getDatetime())));
-            }
-        }
-        return rateCreateDtos;
     }
 
     private ExternalRateCreateDto createForToday(List<Currency> currencies) {

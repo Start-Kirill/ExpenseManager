@@ -4,8 +4,10 @@ import com.testtask.expensemanager.core.dtos.RateCreateDto;
 import com.testtask.expensemanager.core.enums.ErrorType;
 import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.IRateDao;
+import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.services.api.ICurrencyService;
+import com.testtask.expensemanager.services.api.IExternalRateService;
 import com.testtask.expensemanager.services.api.IRateService;
 import com.testtask.expensemanager.services.exceptions.FailedSaveRateException;
 import com.testtask.expensemanager.services.exceptions.SuchRateNotExistsException;
@@ -25,12 +27,16 @@ public class RateService implements IRateService {
 
     private final ICurrencyService currencyService;
 
+    private final IExternalRateService externalRateService;
+
     public RateService(IRateDao rateDao,
                        ConversionService conversionService,
-                       ICurrencyService currencyService) {
+                       ICurrencyService currencyService,
+                       IExternalRateService externalRateService) {
         this.rateDao = rateDao;
         this.conversionService = conversionService;
         this.currencyService = currencyService;
+        this.externalRateService = externalRateService;
     }
 
     @Override
@@ -66,6 +72,14 @@ public class RateService implements IRateService {
     @Override
     public Rate getFirstUpToDate() {
         return this.rateDao.findTopByOrderByDateDesc();
+    }
+
+    @Override
+    public Rate getFirstUpToDate(String firstCurrencyName, String secondCurrencyName) {
+        Currency firstCurrency = this.currencyService.get(firstCurrencyName);
+        Currency secondCurrency = this.currencyService.get(secondCurrencyName);
+        Rate rate = this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDateDesc(firstCurrency, secondCurrency);
+        return rate;
     }
 
     @Override
