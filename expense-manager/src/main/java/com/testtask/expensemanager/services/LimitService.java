@@ -2,6 +2,7 @@ package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.LimitCreateDto;
 import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.ILimitDao;
 import com.testtask.expensemanager.dao.entyties.Limit;
@@ -76,17 +77,11 @@ public class LimitService implements ILimitService {
 
     }
 
-    //    TODO
-    @Override
-    public BigDecimal getReminder(UUID uuid) {
-        return null;
-    }
-
     @Transactional(readOnly = true)
     @Override
-    public Limit getUpToDate() {
+    public Limit getUpToDate(ExpenseCategory expenseCategory) {
         try {
-            return this.limitDao.findTopByOrderByDateTimeCreateDesc().orElseThrow();
+            return this.limitDao.findTopByExpenseCategoryOrderByDateTimeCreateDesc(expenseCategory).orElseThrow();
         } catch (NoSuchElementException ex) {
             throw new SuchLimitNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "There is no any limit in database")));
         }

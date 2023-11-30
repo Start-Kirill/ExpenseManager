@@ -15,5 +15,11 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.sql: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.testtask.expensemanager.services.api.IRateClient: DEBUG
 server:
   port: 8080
+feign:
+  rates:
+    twelvedata:
+      url: https://api.twelvedata.com/time_series
+      key: 83564e572f694d6e9dee8820de64d43e

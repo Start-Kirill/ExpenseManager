@@ -1,6 +1,6 @@
 package com.testtask.expensemanager.services.exceptions;
 
-import com.testtask.expensemanager.core.exceptions.StructuredErrorException;
+import com.testtask.expensemanager.core.exceptions.common.StructuredErrorException;
 
 import java.util.Map;
 

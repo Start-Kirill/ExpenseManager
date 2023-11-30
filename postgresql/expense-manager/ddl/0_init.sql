@@ -44,7 +44,7 @@ CREATE TABLE app.currency_rates
     uuid uuid,
     first_currency_uuid uuid NOT NULL,
     second_currency_uuid uuid NOT NULL,
-    value numeric(2) NOT NULL,
+    value numeric NOT NULL,
     date timestamp without time zone NOT NULL,
     PRIMARY KEY (uuid),
     FOREIGN KEY (first_currency_uuid)
@@ -66,7 +66,7 @@ CREATE TABLE app.limits
 (
     uuid uuid,
     expense_category text NOT NULL,
-    limit_sum numeric(2) NOT NULL,
+    limit_sum numeric NOT NULL,
     currency_uuid uuid NOT NULL,
     datetime_create timestamp without time zone NOT NULL,
     PRIMARY KEY (uuid),
@@ -87,7 +87,8 @@ CREATE TABLE app.transactions
     expense_category text NOT NULL,
     account_from text NOT NULL,
     account_to text NOT NULL,
-    trans_sum numeric(2) NOT NULL,
+    trans_sum numeric NOT NULL,
+    trans_sum_in_usd numeric NOT NULL,
     limit_uuid uuid NOT NULL,
     exceeded boolean NOT NULL,
     datetime timestamp without time zone NOT NULL,

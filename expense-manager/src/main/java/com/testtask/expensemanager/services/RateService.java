@@ -4,8 +4,10 @@ import com.testtask.expensemanager.core.dtos.RateCreateDto;
 import com.testtask.expensemanager.core.enums.ErrorType;
 import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.dao.api.IRateDao;
+import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.services.api.ICurrencyService;
+import com.testtask.expensemanager.services.api.IExternalRateService;
 import com.testtask.expensemanager.services.api.IRateService;
 import com.testtask.expensemanager.services.exceptions.FailedSaveRateException;
 import com.testtask.expensemanager.services.exceptions.SuchRateNotExistsException;
@@ -25,12 +27,16 @@ public class RateService implements IRateService {
 
     private final ICurrencyService currencyService;
 
+    private final IExternalRateService externalRateService;
+
     public RateService(IRateDao rateDao,
                        ConversionService conversionService,
-                       ICurrencyService currencyService) {
+                       ICurrencyService currencyService,
+                       IExternalRateService externalRateService) {
         this.rateDao = rateDao;
         this.conversionService = conversionService;
         this.currencyService = currencyService;
+        this.externalRateService = externalRateService;
     }
 
     @Override
@@ -53,11 +59,42 @@ public class RateService implements IRateService {
         Rate rate = this.conversionService.convert(rateCreateDto, Rate.class);
 
         rate.setUuid(UUID.randomUUID());
-        rate.setFirstCurrency(this.currencyService.get(rateCreateDto.getFirstCurrencyUuid()));
-        rate.setSecondCurrency(this.currencyService.get(rateCreateDto.getSecondCurrencyUuid()));
+        rate.setFirstCurrency(this.currencyService.get(rateCreateDto.getFirstCurrencyName()));
+        rate.setSecondCurrency(this.currencyService.get(rateCreateDto.getSecondCurrencyName()));
 
         try {
-            return this.rateDao.save(rate);
+            return this.rateDao.saveAndFlush(rate);
+        } catch (Exception ex) {
+            throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
+        }
+    }
+
+    @Override
+    public Rate getFirstUpToDate() {
+        return this.rateDao.findTopByOrderByDateDesc();
+    }
+
+    @Override
+    public Rate getFirstUpToDate(String firstCurrencyName, String secondCurrencyName) {
+        Currency firstCurrency = this.currencyService.get(firstCurrencyName);
+        Currency secondCurrency = this.currencyService.get(secondCurrencyName);
+        Rate rate = this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDateDesc(firstCurrency, secondCurrency);
+        return rate;
+    }
+
+    @Override
+    public List<Rate> saveAll(List<RateCreateDto> rateCreateDto) {
+
+        List<Rate> rates = rateCreateDto.stream().map(rc -> {
+            Rate rate = this.conversionService.convert(rc, Rate.class);
+            rate.setUuid(UUID.randomUUID());
+            rate.setFirstCurrency(this.currencyService.get(rc.getFirstCurrencyName()));
+            rate.setSecondCurrency(this.currencyService.get(rc.getSecondCurrencyName()));
+            return rate;
+        }).toList();
+
+        try {
+            return this.rateDao.saveAllAndFlush(rates);
         } catch (Exception ex) {
             throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
         }
