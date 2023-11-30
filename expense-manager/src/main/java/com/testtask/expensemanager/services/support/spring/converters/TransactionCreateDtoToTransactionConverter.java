@@ -6,7 +6,6 @@ import org.springframework.core.convert.converter.Converter;
 
 public class TransactionCreateDtoToTransactionConverter implements Converter<TransactionCreateDto, Transaction> {
 
-//    TODO перепроверить корректность
     @Override
     public Transaction convert(TransactionCreateDto source) {
 

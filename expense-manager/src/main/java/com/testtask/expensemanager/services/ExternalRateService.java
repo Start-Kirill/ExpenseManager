@@ -3,18 +3,22 @@ package com.testtask.expensemanager.services;
 import com.testtask.expensemanager.config.property.RatesProperty;
 import com.testtask.expensemanager.core.dtos.ExternalRateCreateDto;
 import com.testtask.expensemanager.core.dtos.ExternalRateDto;
+import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.services.api.IExternalRateService;
 import com.testtask.expensemanager.services.api.IRateClient;
+import com.testtask.expensemanager.services.exceptions.FailedRateAccessException;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class ExternalRateService implements IExternalRateService {
+
+    private static final String FAILED_ACCESS_MESSAGE = "Error receiving data from external source. Please try later or contact administrator";
 
     private static final String DAILY_INTERVAL_NAME = "1day";
 
@@ -39,10 +43,13 @@ public class ExternalRateService implements IExternalRateService {
         LocalDate endDate = externalRateCreateDto.getEndDate();
         String apiKey = this.twelvedataProps.getKey();
 
-        Map<String, ExternalRateDto> stringExternalRateDtoMap = this.rateClient.get(symbolParam, DAILY_INTERVAL_NAME, startDate, endDate, apiKey);
+        try {
+            return this.rateClient.get(symbolParam, DAILY_INTERVAL_NAME, startDate, endDate, apiKey);
+        } catch (Exception ex) {
+            throw new FailedRateAccessException(FAILED_ACCESS_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_ACCESS_MESSAGE)));
+        }
 
 
-        return stringExternalRateDtoMap;
     }
 
     @Override
@@ -50,9 +57,11 @@ public class ExternalRateService implements IExternalRateService {
         String symbolParam = createSymbolParam(currencyPairs);
         String apiKey = this.twelvedataProps.getKey();
 
-        Map<String, ExternalRateDto> lastThirty = this.rateClient.get(symbolParam, DAILY_INTERVAL_NAME, LocalDate.now().minusDays(30), LocalDate.now().plusDays(1), apiKey);
-
-        return lastThirty;
+        try {
+            return this.rateClient.get(symbolParam, DAILY_INTERVAL_NAME, LocalDate.now().minusDays(30), LocalDate.now().plusDays(1), apiKey);
+        } catch (Exception ex) {
+            throw new FailedRateAccessException(FAILED_ACCESS_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_ACCESS_MESSAGE)));
+        }
     }
 
 
