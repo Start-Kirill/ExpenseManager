@@ -3,6 +3,7 @@ package com.testtask.expensemanager.core.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -12,12 +13,13 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class LimitDto {
 
     private UUID uuid;
 
-    @JsonProperty("datetime_create")
-    private LocalDateTime dateTimeCreate;
+    @JsonProperty("datetime")
+    private LocalDateTime dateTime;
 
     @JsonProperty("expense_category")
     private ExpenseCategory expenseCategory;
@@ -29,12 +31,10 @@ public class LimitDto {
     @JsonProperty("currency")
     private String currencyName;
 
-    public LimitDto() {
-    }
 
     public LimitDto(UUID uuid, LocalDateTime dateTimeCreate, ExpenseCategory expenseCategory, BigDecimal limitSum, String currencyName) {
         this.uuid = uuid;
-        this.dateTimeCreate = dateTimeCreate;
+        this.dateTime = dateTimeCreate;
         this.expenseCategory = expenseCategory;
         this.limitSum = limitSum;
         this.currencyName = currencyName;
@@ -45,19 +45,19 @@ public class LimitDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         LimitDto limitDto = (LimitDto) o;
-        return Objects.equals(uuid, limitDto.uuid) && Objects.equals(dateTimeCreate, limitDto.dateTimeCreate) && expenseCategory == limitDto.expenseCategory && Objects.equals(limitSum, limitDto.limitSum) && Objects.equals(currencyName, limitDto.currencyName);
+        return Objects.equals(uuid, limitDto.uuid) && Objects.equals(dateTime, limitDto.dateTime) && expenseCategory == limitDto.expenseCategory && Objects.equals(limitSum, limitDto.limitSum) && Objects.equals(currencyName, limitDto.currencyName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, dateTimeCreate, expenseCategory, limitSum, currencyName);
+        return Objects.hash(uuid, dateTime, expenseCategory, limitSum, currencyName);
     }
 
     @Override
     public String toString() {
         return "LimitDto{" +
                 "uuid=" + uuid +
-                ", dateTimeCreate=" + dateTimeCreate +
+                ", dateTimeCreate=" + dateTime +
                 ", expenseCategory=" + expenseCategory +
                 ", limitSum=" + limitSum +
                 ", currencyName='" + currencyName + '\'' +

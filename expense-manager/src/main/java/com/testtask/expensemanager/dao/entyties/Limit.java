@@ -3,6 +3,7 @@ package com.testtask.expensemanager.dao.entyties;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "limits")
 public class Limit implements Serializable {
@@ -37,9 +39,6 @@ public class Limit implements Serializable {
     @Column(name = "datetime_create")
     private LocalDateTime dateTimeCreate;
 
-
-    public Limit() {
-    }
 
     public Limit(UUID uuid, ExpenseCategory expenseCategory, BigDecimal limitSum, Currency currency, LocalDateTime dateTimeCreate) {
         this.uuid = uuid;

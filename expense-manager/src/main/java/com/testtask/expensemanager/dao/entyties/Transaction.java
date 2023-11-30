@@ -24,7 +24,6 @@ public class Transaction implements Serializable {
     @Id
     private UUID uuid;
 
-
     @Column(name = "datetime")
     private LocalDateTime dateTime;
 

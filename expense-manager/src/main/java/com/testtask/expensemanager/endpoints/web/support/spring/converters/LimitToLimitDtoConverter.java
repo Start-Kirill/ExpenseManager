@@ -13,7 +13,7 @@ public class LimitToLimitDtoConverter implements Converter<Limit, LimitDto> {
         limitDto.setUuid(source.getUuid());
         limitDto.setLimitSum(source.getLimitSum());
         limitDto.setExpenseCategory(source.getExpenseCategory());
-        limitDto.setDateTimeCreate(source.getDateTimeCreate());
+        limitDto.setDateTime(source.getDateTimeCreate());
         limitDto.setCurrencyName(source.getCurrency().getName());
 
         return limitDto;
