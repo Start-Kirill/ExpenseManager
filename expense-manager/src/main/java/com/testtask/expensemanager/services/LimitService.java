@@ -33,7 +33,9 @@ public class LimitService implements ILimitService {
 
     private static final String LIMIT_CURRENCY_NAME = "USD";
 
-    private static final String LIMIT_SUM_FILED_NANE = "limit_sum";
+    private static final String LIMIT_SUM_FIELD_NANE = "limit_sum";
+
+    private static final String EXPENSE_CATEGORY_FIELD_NANE = "expense_category";
 
     private final ILimitDao limitDao;
 
@@ -100,11 +102,15 @@ public class LimitService implements ILimitService {
         BigDecimal limitSum = limitCreateDto.getLimitSum();
 
         if (limitSum == null) {
-            errors.put(LIMIT_SUM_FILED_NANE, "Filed should be filled");
+            errors.put(LIMIT_SUM_FIELD_NANE, "Field should be filled");
+        } else if (limitSum.compareTo(BigDecimal.ZERO) < 0) {
+            errors.put(LIMIT_SUM_FIELD_NANE, "Value must be positive");
         }
 
-        if (limitSum.compareTo(BigDecimal.ZERO) < 0) {
-            errors.put(LIMIT_SUM_FILED_NANE, "Value must be positive");
+        ExpenseCategory expenseCategory = limitCreateDto.getExpenseCategory();
+
+        if (expenseCategory == null) {
+            errors.put(EXPENSE_CATEGORY_FIELD_NANE, "Field should be filled");
         }
 
         if (!errors.isEmpty()) {
