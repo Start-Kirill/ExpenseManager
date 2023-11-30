@@ -22,6 +22,10 @@ tags:
     description: "Interaction with transactions"
   - name: "Limits"
     description: "Interaction with limits"
+  - name: "Currencies"
+    description: "Interaction with currencies"
+  - name: "Rates"
+    description: "Interaction with rates"
 
 paths:
   /api/v1/transactions:
@@ -34,6 +38,10 @@ paths:
       responses:
         '201':
           description: "Transaction added"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
         '400':
           $ref: '#/components/responses/Bad_Request'
         '500':
@@ -74,6 +82,80 @@ paths:
       responses:
         '201':
           description: "A new limit was added"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Limit'
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+    get:
+      tags:
+        - "Limits"
+      summary: "Recieve limits list"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Limit'
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+  /api/v1/currencies:
+    post:
+      tags:
+        - "Currencies"
+      summary: "Adding a new currency"
+      requestBody:
+        $ref: "#/components/requestBodies/CurrencyCreate"
+      responses:
+        '201':
+          description: "A new currency was added"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currency'
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+    get:
+      tags:
+        - "Currencies"
+      summary: "Recieve currencies list"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Currency'
+        '400':
+          $ref: '#/components/responses/Bad_Request'
+        '500':
+          $ref: '#/components/responses/Internal_Server_Error'
+  /api/v1/rates:
+    get:
+      tags:
+        - "Rates"
+      summary: "Recieve rates list"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rate'
         '400':
           $ref: '#/components/responses/Bad_Request'
         '500':
@@ -101,6 +183,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/LimitCreate'
+    CurrencyCreate:
+      description: Body for currency creation
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CurrencyCreate'
+    Rate:
+      description: Body for rate
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Rate'
   responses:
     Bad_Request:
       description: The request is invalid. The server cannot process the request
@@ -144,11 +240,38 @@ components:
       enum:
         - "PRODUCT"
         - "SERVICE"
+    Rate:
+      type: object
+      description: Rate
+      allOf:
+        - $ref: '#/components/schemas/t_base_essence'
+      properties:
+        first_currency_name:
+          type: string
+          description: "currency code"
+        second_currency_name:
+          type: string
+          description: "currency code"
+        value:
+          type: number
+          description: "rate value"
+        datetime:
+          type: string
+          description: "Rate's date"
     Currency:
       type: object
       description: Currenсy
       allOf:
         - $ref: '#/components/schemas/t_base_essence'
+      properties:
+        name:
+          type: string
+          description: "Currency code"
+    CurrencyCreate:
+      type: object
+      description: CurrenсyCreate
+      required:
+        - name
       properties:
         name:
           type: string
@@ -159,7 +282,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/t_base_essence'
       properties:
-        datetime_create:
+        datetime:
           description: "Creation date"
           type: string
           format: yyyy-mm-dd h:m:s+hh
@@ -175,6 +298,9 @@ components:
     LimitCreate:
       type: object
       description: Limit
+      required:
+        - limit_sum
+        - expense_category
       properties:
         limit_sum:
           type: number
@@ -223,6 +349,13 @@ components:
     TransactionCreate:
       type: object
       description: Transaction
+      required:
+        - datetime
+        - trans_sum
+        - currency_shortname
+        - expense_category
+        - account_from
+        - account_to
       properties:
         datetime:
           description: Creation date

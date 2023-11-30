@@ -1,6 +1,9 @@
 package com.testtask.expensemanager.dao.entyties;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -8,6 +11,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "currency_rates")
 public class Rate implements Serializable {
@@ -29,54 +35,12 @@ public class Rate implements Serializable {
 
     private LocalDateTime date;
 
-    public Rate() {
-    }
 
     public Rate(UUID uuid, Currency firstCurrency, Currency secondCurrency, BigDecimal value, LocalDateTime date) {
         this.uuid = uuid;
         this.firstCurrency = firstCurrency;
         this.secondCurrency = secondCurrency;
         this.value = value;
-        this.date = date;
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
-    }
-
-    public Currency getFirstCurrency() {
-        return firstCurrency;
-    }
-
-    public void setFirstCurrency(Currency firstCurrency) {
-        this.firstCurrency = firstCurrency;
-    }
-
-    public Currency getSecondCurrency() {
-        return secondCurrency;
-    }
-
-    public void setSecondCurrency(Currency secondCurrency) {
-        this.secondCurrency = secondCurrency;
-    }
-
-    public BigDecimal getValue() {
-        return value;
-    }
-
-    public void setValue(BigDecimal value) {
-        this.value = value;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

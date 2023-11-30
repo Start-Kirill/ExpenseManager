@@ -13,7 +13,6 @@ public class CurrencyCreateDto {
 
     private String name;
 
-
     public CurrencyCreateDto(String name) {
         this.name = name;
     }

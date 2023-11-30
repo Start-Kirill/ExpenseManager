@@ -3,6 +3,7 @@ package com.testtask.expensemanager.core.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class TransactionDto {
 
     private UUID uuid;
@@ -46,8 +48,6 @@ public class TransactionDto {
     @JsonProperty("limit_currency")
     private String limitCurrencyName;
 
-    public TransactionDto() {
-    }
 
     public TransactionDto(UUID uuid, LocalDateTime dateTime, BigDecimal transSum, String currencyName, ExpenseCategory expenseCategory, String accountFrom, String accountTo, boolean limitExceeded, BigDecimal limitSum, LocalDateTime limitDateTime, String limitCurrencyName) {
         this.uuid = uuid;
