@@ -1,6 +1,8 @@
 package com.testtask.expensemanager.config;
 
+import com.testtask.expensemanager.endpoints.web.support.spring.converters.CurrencyToCurrencyDtoConverter;
 import com.testtask.expensemanager.endpoints.web.support.spring.converters.LimitToLimitDtoConverter;
+import com.testtask.expensemanager.endpoints.web.support.spring.converters.RateToRateDtoConverter;
 import com.testtask.expensemanager.endpoints.web.support.spring.converters.TransactionToTransactionDtoConverter;
 import com.testtask.expensemanager.services.support.spring.converters.CurrencyCreateDtoToCurrencyConverter;
 import com.testtask.expensemanager.services.support.spring.converters.LimitCreateDtoToLimitConverter;
@@ -21,6 +23,8 @@ public class ApplicationConfig implements WebMvcConfigurer {
         registry.addConverter(new RateCreateDtoToRateConverter());
         registry.addConverter(new LimitCreateDtoToLimitConverter());
         registry.addConverter(new TransactionCreateDtoToTransactionConverter());
+        registry.addConverter(new CurrencyToCurrencyDtoConverter());
+        registry.addConverter(new RateToRateDtoConverter());
     }
 
 

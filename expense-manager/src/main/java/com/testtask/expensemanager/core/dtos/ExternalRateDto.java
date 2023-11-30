@@ -18,10 +18,13 @@ public class ExternalRateDto {
 
     private String status;
 
-    public ExternalRateDto(ExternalRateMetaDto meta, List<ExternalRateValueDto> values, String status) {
+    private Integer code;
+
+    public ExternalRateDto(ExternalRateMetaDto meta, List<ExternalRateValueDto> values, String status, Integer code) {
         this.meta = meta;
         this.values = values;
         this.status = status;
+        this.code = code;
     }
 
     @Override
@@ -29,20 +32,22 @@ public class ExternalRateDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ExternalRateDto that = (ExternalRateDto) o;
-        return Objects.equals(meta, that.meta) && Objects.equals(values, that.values) && Objects.equals(status, that.status);
+        return Objects.equals(meta, that.meta) && Objects.equals(values, that.values) && Objects.equals(status, that.status) && Objects.equals(code, that.code);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(meta, values, status);
+        return Objects.hash(meta, values, status, code);
     }
 
     @Override
-    public String toString() {
+    public String
+    toString() {
         return "ExternalRateDto{" +
                 "meta=" + meta +
                 ", values=" + values +
                 ", status='" + status + '\'' +
+                ", code=" + code +
                 '}';
     }
 }

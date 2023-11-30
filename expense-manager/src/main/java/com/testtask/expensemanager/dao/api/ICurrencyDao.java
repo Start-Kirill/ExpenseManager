@@ -10,4 +10,6 @@ public interface ICurrencyDao extends JpaRepository<Currency, UUID> {
 
     Optional<Currency> findByName(String name);
 
+    boolean existsByName(String name);
+
 }

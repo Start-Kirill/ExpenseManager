@@ -8,6 +8,7 @@ import com.testtask.expensemanager.dao.api.ILimitDao;
 import com.testtask.expensemanager.dao.entyties.Limit;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.ILimitService;
+import com.testtask.expensemanager.services.exceptions.FailedSaveLimitException;
 import com.testtask.expensemanager.services.exceptions.InvalidLimitBodyException;
 import com.testtask.expensemanager.services.exceptions.SuchLimitNotExistsException;
 import org.springframework.core.convert.ConversionService;
@@ -24,9 +25,17 @@ import java.util.UUID;
 @Service
 public class LimitService implements ILimitService {
 
+    private static final String LIMIT_NOT_EXIST_MESSAGE = "Limit with such uuid does not exist";
+
+    private static final String FAILED_SAVE_MESSAGE = "Saving limit failed";
+
+    private static final String NO_ANY_LIMIT_MESSAGE = "There is no any limit in database";
+
     private static final String LIMIT_CURRENCY_NAME = "USD";
 
-    private static final String LIMIT_SUM_FILED_NANE = "limit_sum";
+    private static final String LIMIT_SUM_FIELD_NANE = "limit_sum";
+
+    private static final String EXPENSE_CATEGORY_FIELD_NANE = "expense_category";
 
     private final ILimitDao limitDao;
 
@@ -47,8 +56,8 @@ public class LimitService implements ILimitService {
     public Limit get(UUID uuid) {
         try {
             return this.limitDao.findById(uuid).orElseThrow();
-        } catch (Exception ex) {
-            throw new RuntimeException();
+        } catch (NoSuchElementException ex) {
+            throw new SuchLimitNotExistsException(LIMIT_NOT_EXIST_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, LIMIT_NOT_EXIST_MESSAGE)));
         }
     }
 
@@ -72,7 +81,7 @@ public class LimitService implements ILimitService {
         try {
             return this.limitDao.save(limit);
         } catch (Exception ex) {
-            throw new RuntimeException();
+            throw new FailedSaveLimitException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
 
     }
@@ -83,7 +92,7 @@ public class LimitService implements ILimitService {
         try {
             return this.limitDao.findTopByExpenseCategoryOrderByDateTimeCreateDesc(expenseCategory).orElseThrow();
         } catch (NoSuchElementException ex) {
-            throw new SuchLimitNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "There is no any limit in database")));
+            throw new SuchLimitNotExistsException(NO_ANY_LIMIT_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, NO_ANY_LIMIT_MESSAGE)));
         }
     }
 
@@ -92,12 +101,16 @@ public class LimitService implements ILimitService {
 
         BigDecimal limitSum = limitCreateDto.getLimitSum();
 
-        if(limitSum == null){
-            errors.put(LIMIT_SUM_FILED_NANE, "Filed should be filled");
+        if (limitSum == null) {
+            errors.put(LIMIT_SUM_FIELD_NANE, "Field should be filled");
+        } else if (limitSum.compareTo(BigDecimal.ZERO) < 0) {
+            errors.put(LIMIT_SUM_FIELD_NANE, "Value must be positive");
         }
 
-        if (limitSum.compareTo(BigDecimal.ZERO) < 0) {
-            errors.put(LIMIT_SUM_FILED_NANE, "Value must be positive");
+        ExpenseCategory expenseCategory = limitCreateDto.getExpenseCategory();
+
+        if (expenseCategory == null) {
+            errors.put(EXPENSE_CATEGORY_FIELD_NANE, "Field should be filled");
         }
 
         if (!errors.isEmpty()) {

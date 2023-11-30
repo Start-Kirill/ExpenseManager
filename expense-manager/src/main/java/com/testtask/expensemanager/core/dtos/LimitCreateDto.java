@@ -1,7 +1,11 @@
 package com.testtask.expensemanager.core.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.testtask.expensemanager.core.converters.json.StringToBigDecimalWithRoundingConverter;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -9,14 +13,16 @@ import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class LimitCreateDto {
 
+    @JsonDeserialize(converter = StringToBigDecimalWithRoundingConverter.class)
+    @JsonProperty(value = "limit_sum")
     private BigDecimal limitSum;
 
+    @JsonProperty(value = "expense_category")
     private ExpenseCategory expenseCategory;
 
-    public LimitCreateDto() {
-    }
 
     public LimitCreateDto(BigDecimal limitSum, ExpenseCategory expenseCategory) {
         this.limitSum = limitSum;

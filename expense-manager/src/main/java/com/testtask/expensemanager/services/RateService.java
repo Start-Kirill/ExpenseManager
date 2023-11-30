@@ -21,6 +21,10 @@ import java.util.UUID;
 @Service
 public class RateService implements IRateService {
 
+    private static final String FAILED_SAVE_MESSAGE = "Saving rate failed";
+
+    private static final String RATE_NOT_STORE_MESSAGE = "There is no such rate in database";
+
     private final IRateDao rateDao;
 
     private final ConversionService conversionService;
@@ -44,7 +48,7 @@ public class RateService implements IRateService {
         try {
             return this.rateDao.findById(uuid).orElseThrow();
         } catch (NoSuchElementException ex) {
-            throw new SuchRateNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "There is no such rate in database")));
+            throw new SuchRateNotExistsException(RATE_NOT_STORE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, RATE_NOT_STORE_MESSAGE)));
         }
     }
 
@@ -65,7 +69,7 @@ public class RateService implements IRateService {
         try {
             return this.rateDao.saveAndFlush(rate);
         } catch (Exception ex) {
-            throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
+            throw new FailedSaveRateException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
     }
 
@@ -96,7 +100,7 @@ public class RateService implements IRateService {
         try {
             return this.rateDao.saveAllAndFlush(rates);
         } catch (Exception ex) {
-            throw new FailedSaveRateException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving rate failed")));
+            throw new FailedSaveRateException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
     }
 }

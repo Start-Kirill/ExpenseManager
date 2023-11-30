@@ -43,7 +43,7 @@ public class RateSchedulerService implements IRateSchedulerService {
         execute();
     }
 
-    //    TODO Обработка ошибок. Превышении лимита запросов,  и т.п.
+
     @Scheduled(cron = "1 0 0 * * ?")
     @Override
     public void execute() {
@@ -58,7 +58,6 @@ public class RateSchedulerService implements IRateSchedulerService {
             Map<String, ExternalRateDto> lastThirty = this.externalRateService.getLastThirty(pairs);
 
             rateCreateDtos = CustomConverter.convert(lastThirty);
-
         } else if (!firstUpToDate.getDate().toLocalDate().equals(LocalDate.now())) {
             ExternalRateCreateDto externalRateCreateDto = createForToday(currencies);
 

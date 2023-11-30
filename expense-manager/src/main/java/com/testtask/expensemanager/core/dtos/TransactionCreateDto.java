@@ -1,7 +1,12 @@
 package com.testtask.expensemanager.core.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.testtask.expensemanager.core.converters.json.StringToBigDecimalWithRoundingConverter;
+import com.testtask.expensemanager.core.converters.json.StringToLocalDateTimeWithTimeZoneConverter;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -10,22 +15,29 @@ import java.util.Objects;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class TransactionCreateDto {
 
+    @JsonDeserialize(converter = StringToBigDecimalWithRoundingConverter.class)
+    @JsonProperty(value = "trans_sum")
     private BigDecimal transSum;
 
+    @JsonProperty(value = "currency_shortname")
     private String currencyName;
 
+    @JsonProperty(value = "expense_category")
     private ExpenseCategory expenseCategory;
 
+    @JsonProperty(value = "account_from")
     private String accountFrom;
 
+    @JsonProperty(value = "account_to")
     private String accountTo;
 
+    @JsonDeserialize(converter = StringToLocalDateTimeWithTimeZoneConverter.class)
+    @JsonProperty(value = "datetime")
     private LocalDateTime dateTime;
 
-    public TransactionCreateDto() {
-    }
 
     public TransactionCreateDto(BigDecimal transSum, String currencyName, ExpenseCategory expenseCategory, String accountFrom, String accountTo, LocalDateTime dateTime) {
         this.transSum = transSum;
