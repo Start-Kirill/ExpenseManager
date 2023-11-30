@@ -98,6 +98,7 @@ public class TransactionService implements ITransactionService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Transaction get(UUID uuid) {
         try {
@@ -107,17 +108,19 @@ public class TransactionService implements ITransactionService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Transaction> get() {
         return this.transactionDao.findAll();
     }
 
-
+    @Transactional(readOnly = true)
     @Override
     public List<Transaction> getExceeded() {
         return this.transactionDao.findAllByIsExceeded(true);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BigDecimal getActualExpense(ExpenseCategory expenseCategory) {
         BigDecimal actualExpense = this.transactionDao.findActualExpense(expenseCategory.toString());
