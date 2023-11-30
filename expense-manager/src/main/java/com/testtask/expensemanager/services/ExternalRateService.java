@@ -18,7 +18,7 @@ import java.util.Map;
 @Service
 public class ExternalRateService implements IExternalRateService {
 
-    private static final String FAILED_ACCESS_MESSAGE = "Error receiving data from external source. Please try later or contact administrator";
+    private static final String FAILED_ACCESS_MESSAGE = "Error receiving data from external source. Please try again later or contact administrator";
 
     private static final String DAILY_INTERVAL_NAME = "1day";
 

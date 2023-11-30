@@ -16,6 +16,8 @@ public class StringToLocalDateTimeConverter extends StdConverter<String, LocalDa
 
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd";
 
+    private static final String DATE_CONTAINS_INVALID_DATA_MESSAGE = "Date value contains invalid data";
+
     @Override
     public LocalDateTime convert(String s) {
 
@@ -24,7 +26,7 @@ public class StringToLocalDateTimeConverter extends StdConverter<String, LocalDa
         try {
             return LocalDateTime.of(LocalDate.parse(s, formatter), LocalTime.MIN);
         } catch (DateTimeParseException ex) {
-            throw new FailedConvertDateException(List.of(new ErrorResponse(ErrorType.ERROR, "Exchange rate date contains invalid data")));
+            throw new FailedConvertDateException(DATE_CONTAINS_INVALID_DATA_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, DATE_CONTAINS_INVALID_DATA_MESSAGE)));
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.testtask.expensemanager.core.converters.json;
 
 
-
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.testtask.expensemanager.core.errors.SpecificError;
 

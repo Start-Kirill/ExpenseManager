@@ -18,6 +18,12 @@ import java.util.*;
 @Service
 public class CurrencyService implements ICurrencyService {
 
+    private static final String CURRENCY_NOT_EXIST_MESSAGE = "Currency with such name does not exist";
+
+    private static final String CURRENCY_NOT_STORED_MESSAGE = "Currency with such name is note stored in database";
+
+    private static final String FAILED_SAVE_MESSAGE = "Saving currency failed";
+
     private static final String NAME_FIELD_NAME = "name";
     private final ICurrencyDao currencyDao;
 
@@ -35,7 +41,7 @@ public class CurrencyService implements ICurrencyService {
         try {
             return this.currencyDao.findById(uuid).orElseThrow();
         } catch (NoSuchElementException ex) {
-            throw new SuchCurrencyNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "Currency with such name does not exist")));
+            throw new SuchCurrencyNotExistsException(CURRENCY_NOT_EXIST_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_EXIST_MESSAGE)));
         }
 
     }
@@ -46,7 +52,7 @@ public class CurrencyService implements ICurrencyService {
         try {
             return this.currencyDao.findByName(name).orElseThrow();
         } catch (NoSuchElementException ex) {
-            throw new SuchCurrencyNotExistsException(List.of(new ErrorResponse(ErrorType.ERROR, "Currency with such name is note stored in database")));
+            throw new SuchCurrencyNotExistsException(CURRENCY_NOT_STORED_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_STORED_MESSAGE)));
         }
 
     }
@@ -69,7 +75,7 @@ public class CurrencyService implements ICurrencyService {
         try {
             return this.currencyDao.save(currency);
         } catch (Exception ex) {
-            throw new FailedSaveCurrencyException(List.of(new ErrorResponse(ErrorType.ERROR, "Saving currency failed")));
+            throw new FailedSaveCurrencyException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
 
     }
