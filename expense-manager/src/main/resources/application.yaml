@@ -4,6 +4,12 @@ spring:
     url: jdbc:postgresql://db:5432/expense_manager?ApplicationName=expense-manager
     username: expense_manager
     password: q1w2e3r4
+  flyway:
+    baseline-on-migrate: true
+    enable: true
+    user: expense_manager
+    password: q1w2e3r4
+    schemas: app
   jpa:
     hibernate:
       ddl-auto: none
