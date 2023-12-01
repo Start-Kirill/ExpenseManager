@@ -55,34 +55,6 @@ public class CurrencyService implements ICurrencyService {
         this.rateService = rateService;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Currency get(UUID uuid) {
-        try {
-            return this.currencyDao.findById(uuid).orElseThrow();
-        } catch (NoSuchElementException ex) {
-            throw new SuchCurrencyNotExistsException(CURRENCY_NOT_EXIST_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_EXIST_MESSAGE)));
-        }
-
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Currency get(String name) {
-        try {
-            return this.currencyDao.findByName(name).orElseThrow();
-        } catch (NoSuchElementException ex) {
-            throw new SuchCurrencyNotExistsException(CURRENCY_NOT_STORED_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_STORED_MESSAGE)));
-        }
-
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Currency> get() {
-        return this.currencyDao.findAll();
-    }
-
     @Transactional
     @Override
     public Currency save(CurrencyCreateDto currencyCreateDto) {
@@ -109,6 +81,34 @@ public class CurrencyService implements ICurrencyService {
             throw new FailedSaveCurrencyException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
 
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Currency get(UUID uuid) {
+        try {
+            return this.currencyDao.findById(uuid).orElseThrow();
+        } catch (NoSuchElementException ex) {
+            throw new SuchCurrencyNotExistsException(CURRENCY_NOT_EXIST_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_EXIST_MESSAGE)));
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Currency get(String name) {
+        try {
+            return this.currencyDao.findByName(name).orElseThrow();
+        } catch (NoSuchElementException ex) {
+            throw new SuchCurrencyNotExistsException(CURRENCY_NOT_STORED_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_STORED_MESSAGE)));
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Currency> get() {
+        return this.currencyDao.findAll();
     }
 
 

@@ -87,8 +87,8 @@ public class TransactionService implements ITransactionService {
         }
 
         BigDecimal actualExpense = this.getActualExpense(transactionCreateDto.getExpenseCategory());
-
-        transaction.setExceeded(limit.getLimitSum().compareTo(actualExpense.add(transaction.getTransSumInUSD())) < 0);
+        boolean isExceeded = limit.getLimitSum().compareTo(actualExpense.add(transaction.getTransSumInUSD())) < 0;
+        transaction.setExceeded(isExceeded);
 
         try {
             return this.transactionDao.save(transaction);
@@ -98,6 +98,7 @@ public class TransactionService implements ITransactionService {
 
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Transaction get(UUID uuid) {
         try {
@@ -107,17 +108,19 @@ public class TransactionService implements ITransactionService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Transaction> get() {
         return this.transactionDao.findAll();
     }
 
-
+    @Transactional(readOnly = true)
     @Override
     public List<Transaction> getExceeded() {
         return this.transactionDao.findAllByIsExceeded(true);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BigDecimal getActualExpense(ExpenseCategory expenseCategory) {
         BigDecimal actualExpense = this.transactionDao.findActualExpense(expenseCategory.toString());
@@ -126,7 +129,7 @@ public class TransactionService implements ITransactionService {
 
 
     private BigDecimal calculateInUsd(String currencyName, BigDecimal transSum) {
-        BigDecimal transSumUsd = null;
+        BigDecimal transSumUsd;
 
         Rate rate = this.rateService.getFirstUpToDate(currencyName, DOLLAR_USA_CURRENCY_NAME);
         if (rate != null) {
@@ -182,7 +185,9 @@ public class TransactionService implements ITransactionService {
         }
 
         LocalDateTime dateTime = transactionCreateDto.getDateTime();
-        if (dateTime.isAfter(LocalDateTime.now())) {
+        if (dateTime == null) {
+            errors.put(DATE_TIME_FIELD_NAME, "Filed should be filled");
+        } else if (dateTime.isAfter(LocalDateTime.now())) {
             errors.put(DATE_TIME_FIELD_NAME, "Such a time has not yet come");
         }
 

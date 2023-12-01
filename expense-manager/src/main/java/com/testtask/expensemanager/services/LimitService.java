@@ -51,22 +51,6 @@ public class LimitService implements ILimitService {
         this.currencyService = currencyService;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Limit get(UUID uuid) {
-        try {
-            return this.limitDao.findById(uuid).orElseThrow();
-        } catch (NoSuchElementException ex) {
-            throw new SuchLimitNotExistsException(LIMIT_NOT_EXIST_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, LIMIT_NOT_EXIST_MESSAGE)));
-        }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Limit> get() {
-        return this.limitDao.findAll();
-    }
-
     @Transactional
     @Override
     public Limit save(LimitCreateDto limitCreateDto) {
@@ -84,6 +68,22 @@ public class LimitService implements ILimitService {
             throw new FailedSaveLimitException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
 
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Limit get(UUID uuid) {
+        try {
+            return this.limitDao.findById(uuid).orElseThrow();
+        } catch (NoSuchElementException ex) {
+            throw new SuchLimitNotExistsException(LIMIT_NOT_EXIST_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, LIMIT_NOT_EXIST_MESSAGE)));
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Limit> get() {
+        return this.limitDao.findAll();
     }
 
     @Transactional(readOnly = true)

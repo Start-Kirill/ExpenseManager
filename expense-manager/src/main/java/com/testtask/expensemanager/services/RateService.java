@@ -13,6 +13,7 @@ import com.testtask.expensemanager.services.exceptions.FailedSaveRateException;
 import com.testtask.expensemanager.services.exceptions.SuchRateNotExistsException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -43,20 +44,7 @@ public class RateService implements IRateService {
         this.externalRateService = externalRateService;
     }
 
-    @Override
-    public Rate get(UUID uuid) {
-        try {
-            return this.rateDao.findById(uuid).orElseThrow();
-        } catch (NoSuchElementException ex) {
-            throw new SuchRateNotExistsException(RATE_NOT_STORE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, RATE_NOT_STORE_MESSAGE)));
-        }
-    }
-
-    @Override
-    public List<Rate> get() {
-        return this.rateDao.findAll();
-    }
-
+    @Transactional
     @Override
     public Rate save(RateCreateDto rateCreateDto) {
 
@@ -73,19 +61,7 @@ public class RateService implements IRateService {
         }
     }
 
-    @Override
-    public Rate getFirstUpToDate() {
-        return this.rateDao.findTopByOrderByDateDesc();
-    }
-
-    @Override
-    public Rate getFirstUpToDate(String firstCurrencyName, String secondCurrencyName) {
-        Currency firstCurrency = this.currencyService.get(firstCurrencyName);
-        Currency secondCurrency = this.currencyService.get(secondCurrencyName);
-        Rate rate = this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDateDesc(firstCurrency, secondCurrency);
-        return rate;
-    }
-
+    @Transactional
     @Override
     public List<Rate> saveAll(List<RateCreateDto> rateCreateDto) {
 
@@ -103,5 +79,38 @@ public class RateService implements IRateService {
             throw new FailedSaveRateException(FAILED_SAVE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, FAILED_SAVE_MESSAGE)));
         }
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Rate get(UUID uuid) {
+        try {
+            return this.rateDao.findById(uuid).orElseThrow();
+        } catch (NoSuchElementException ex) {
+            throw new SuchRateNotExistsException(RATE_NOT_STORE_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, RATE_NOT_STORE_MESSAGE)));
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Rate> get() {
+        return this.rateDao.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Rate getFirstUpToDate() {
+        return this.rateDao.findTopByOrderByDateDesc();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Rate getFirstUpToDate(String firstCurrencyName, String secondCurrencyName) {
+        Currency firstCurrency = this.currencyService.get(firstCurrencyName);
+        Currency secondCurrency = this.currencyService.get(secondCurrencyName);
+        Rate rate = this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDateDesc(firstCurrency, secondCurrency);
+        return rate;
+    }
+
+
 }
 
