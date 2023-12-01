@@ -3,14 +3,12 @@ package com.testtask.expensemanager.core.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.testtask.expensemanager.core.converters.json.StringToBigDecimalWithRoundingConverter;
-import com.testtask.expensemanager.core.converters.json.StringToLocalDateTimeWithTimeZoneConverter;
 import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
@@ -34,18 +32,13 @@ public class TransactionCreateDto {
     @JsonProperty(value = "account_to")
     private String accountTo;
 
-    @JsonDeserialize(converter = StringToLocalDateTimeWithTimeZoneConverter.class)
-    @JsonProperty(value = "datetime")
-    private LocalDateTime dateTime;
 
-
-    public TransactionCreateDto(BigDecimal transSum, String currencyName, ExpenseCategory expenseCategory, String accountFrom, String accountTo, LocalDateTime dateTime) {
+    public TransactionCreateDto(BigDecimal transSum, String currencyName, ExpenseCategory expenseCategory, String accountFrom, String accountTo) {
         this.transSum = transSum;
         this.currencyName = currencyName;
         this.expenseCategory = expenseCategory;
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
-        this.dateTime = dateTime;
     }
 
     @Override
@@ -53,12 +46,12 @@ public class TransactionCreateDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TransactionCreateDto that = (TransactionCreateDto) o;
-        return Objects.equals(transSum, that.transSum) && Objects.equals(currencyName, that.currencyName) && expenseCategory == that.expenseCategory && Objects.equals(accountFrom, that.accountFrom) && Objects.equals(accountTo, that.accountTo) && Objects.equals(dateTime, that.dateTime);
+        return Objects.equals(transSum, that.transSum) && Objects.equals(currencyName, that.currencyName) && expenseCategory == that.expenseCategory && Objects.equals(accountFrom, that.accountFrom) && Objects.equals(accountTo, that.accountTo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(transSum, currencyName, expenseCategory, accountFrom, accountTo, dateTime);
+        return Objects.hash(transSum, currencyName, expenseCategory, accountFrom, accountTo);
     }
 
     @Override
@@ -69,7 +62,6 @@ public class TransactionCreateDto {
                 ", expenseCategory=" + expenseCategory +
                 ", accountFrom='" + accountFrom + '\'' +
                 ", accountTo='" + accountTo + '\'' +
-                ", dateTime=" + dateTime +
                 '}';
     }
 }

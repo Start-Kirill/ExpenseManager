@@ -71,6 +71,7 @@ public class TransactionService implements ITransactionService {
 
         UUID uuid = UUID.randomUUID();
         transaction.setUuid(uuid);
+        transaction.setDateTime(LocalDateTime.now());
 
         String currencyName = transactionCreateDto.getCurrencyName();
         Currency currency = this.currencyService.get(currencyName);
@@ -182,13 +183,6 @@ public class TransactionService implements ITransactionService {
         String accountTO = transactionCreateDto.getAccountTo();
         if (accountTO == null || accountTO.isEmpty()) {
             errors.put(ACCOUNT_TO_FIELD_NAME, "Filed should be filled");
-        }
-
-        LocalDateTime dateTime = transactionCreateDto.getDateTime();
-        if (dateTime == null) {
-            errors.put(DATE_TIME_FIELD_NAME, "Filed should be filled");
-        } else if (dateTime.isAfter(LocalDateTime.now())) {
-            errors.put(DATE_TIME_FIELD_NAME, "Such a time has not yet come");
         }
 
         if (!errors.isEmpty()) {

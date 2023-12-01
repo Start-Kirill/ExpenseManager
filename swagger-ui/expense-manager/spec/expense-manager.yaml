@@ -350,7 +350,6 @@ components:
       type: object
       description: Transaction
       required:
-        - datetime
         - trans_sum
         - currency_shortname
         - expense_category
@@ -358,9 +357,6 @@ components:
         - account_to
       properties:
         datetime:
-          description: Creation date
-          type: string
-          format: yyyy-mm-dd h:m:s+hh
         trans_sum:
           type: number
           format: double
