@@ -13,7 +13,6 @@ public class TransactionCreateDtoToTransactionConverter implements Converter<Tra
 
         transaction.setAccountFrom(source.getAccountFrom());
         transaction.setAccountTo(source.getAccountTo());
-        transaction.setDateTime(source.getDateTime());
         transaction.setExpenseCategory(source.getExpenseCategory());
         transaction.setTransSum(source.getTransSum());
 

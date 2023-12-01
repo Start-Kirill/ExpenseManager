@@ -20,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.convert.ConversionService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -141,8 +140,7 @@ public class TransactionServiceTest {
         return new TransactionCreateDto(BigDecimal.valueOf(1),
                 DEFAULT_CURRENCY_NAME,
                 ExpenseCategory.PRODUCT,
-                "123", "321",
-                LocalDateTime.now());
+                "123", "321");
     }
 
 
