@@ -54,7 +54,7 @@
      - 1000.00 USD для услуг(SERVICE)
    - Валюты:
      - USD
-     - BYN
+     - RUB
      - KZT
          
    
