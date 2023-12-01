@@ -5,6 +5,7 @@ import com.testtask.expensemanager.core.enums.ExpenseCategory;
 import com.testtask.expensemanager.dao.api.ITransactionDao;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Limit;
+import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.dao.entyties.Transaction;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.ILimitService;
@@ -32,8 +33,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionServiceTest {
-
-    private static final String DEFAULT_CURRENCY_NAME = "USD";
 
     @InjectMocks
     private TransactionService transactionService;
@@ -70,10 +69,55 @@ public class TransactionServiceTest {
         when(this.transactionDao.save(any(Transaction.class))).thenReturn(transaction);
         when(this.transactionDao.findActualExpense(anyString())).thenReturn(BigDecimal.valueOf(5));
 
-        final Transaction actual = this.transactionService.save(generateCorrect());
+        final Transaction actual = this.transactionService.save(generateCorrect(500, "USD"));
 
         assertNotNull(actual);
         assertEquals(actual, transaction);
+    }
+
+    @Test
+    public void shouldCorrectSetIsExceedCaseFirst() {
+        Transaction transaction = new Transaction();
+        when(this.conversionService.convert(any(TransactionCreateDto.class), eq(Transaction.class)))
+                .thenReturn(transaction);
+        final Currency currency = mock(Currency.class);
+        when(this.currencyService.get(anyString())).thenReturn(currency);
+        final Limit limit = mock(Limit.class);
+        when(limit.getLimitSum()).thenReturn(BigDecimal.valueOf(1000));
+        final Rate rate = mock(Rate.class);
+        when(rate.getValue()).thenReturn(BigDecimal.valueOf(0.011));
+        when(this.rateService.getFirstUpToDate(anyString(), anyString())).thenReturn(rate);
+        when(this.transactionDao.findActualExpense(anyString())).thenReturn(BigDecimal.valueOf(500));
+
+        when(this.limitService.getUpToDate(any(ExpenseCategory.class))).thenReturn(limit);
+        when(this.transactionDao.save(any(Transaction.class))).thenAnswer(m -> m.getArgument(0));
+
+        final Transaction actual = this.transactionService.save(generateCorrect(500, "RUB"));
+
+        assertNotNull(actual);
+        assertFalse(actual.isExceeded());
+    }
+
+    @Test
+    public void shouldCorrectSetIsExceedCaseSecond() {
+        Transaction transaction = new Transaction();
+        when(this.conversionService.convert(any(TransactionCreateDto.class), eq(Transaction.class)))
+                .thenReturn(transaction);
+        final Currency currency = mock(Currency.class);
+        when(this.currencyService.get(anyString())).thenReturn(currency);
+        final Limit limit = mock(Limit.class);
+        when(limit.getLimitSum()).thenReturn(BigDecimal.valueOf(1000));
+        final Rate rate = mock(Rate.class);
+        when(rate.getValue()).thenReturn(BigDecimal.valueOf(0.011));
+        when(this.rateService.getFirstUpToDate(anyString(), anyString())).thenReturn(rate);
+        when(this.transactionDao.findActualExpense(anyString())).thenReturn(BigDecimal.valueOf(500));
+        when(this.limitService.getUpToDate(any(ExpenseCategory.class))).thenReturn(limit);
+        when(this.transactionDao.save(any(Transaction.class))).thenAnswer(m -> m.getArgument(0));
+
+        final Transaction actual = this.transactionService.save(generateCorrect(50000, "RUB"));
+
+        assertNotNull(actual);
+        assertTrue(actual.isExceeded());
     }
 
     @Test
@@ -136,9 +180,9 @@ public class TransactionServiceTest {
     }
 
 
-    private TransactionCreateDto generateCorrect() {
-        return new TransactionCreateDto(BigDecimal.valueOf(1),
-                DEFAULT_CURRENCY_NAME,
+    private TransactionCreateDto generateCorrect(double value, String currency) {
+        return new TransactionCreateDto(BigDecimal.valueOf(value),
+                currency,
                 ExpenseCategory.PRODUCT,
                 "123", "321");
     }
