@@ -4,6 +4,7 @@ import com.testtask.expensemanager.core.dtos.CurrencyCreateDto;
 import com.testtask.expensemanager.core.dtos.ExternalRateDto;
 import com.testtask.expensemanager.core.dtos.RateCreateDto;
 import com.testtask.expensemanager.core.enums.ErrorType;
+import com.testtask.expensemanager.core.enums.RateStatus;
 import com.testtask.expensemanager.core.errors.ErrorResponse;
 import com.testtask.expensemanager.core.utils.CustomConverter;
 import com.testtask.expensemanager.dao.api.ICurrencyDao;
@@ -65,14 +66,15 @@ public class CurrencyService implements ICurrencyService {
 
         currency.setUuid(UUID.randomUUID());
 
+
         try {
-            List<Pair<String, String>> pairs = makePairsForNewCurrency(currencyCreateDto.getName());
+            List<Pair<String, String>> pairs = createPairsForNewCurrency(currencyCreateDto.getName());
 
             Currency save = this.currencyDao.save(currency);
 
             Map<String, ExternalRateDto> lastThirty = this.externalRateService.getLastThirty(pairs);
 
-            List<RateCreateDto> rateCreateDtos = CustomConverter.convert(lastThirty);
+            List<RateCreateDto> rateCreateDtos = CustomConverter.convert(lastThirty, RateStatus.DONE);
 
             this.rateService.saveAll(rateCreateDtos);
 
@@ -103,6 +105,12 @@ public class CurrencyService implements ICurrencyService {
             throw new SuchCurrencyNotExistsException(CURRENCY_NOT_STORED_MESSAGE, List.of(new ErrorResponse(ErrorType.ERROR, CURRENCY_NOT_STORED_MESSAGE)));
         }
 
+    }
+
+    @Override
+    public List<Pair<String, String>> getCurrencyPairs() {
+        List<Currency> currencies = this.get();
+        return createAllPairs(currencies);
     }
 
     @Transactional(readOnly = true)
@@ -143,13 +151,34 @@ public class CurrencyService implements ICurrencyService {
         return first.isPresent();
     }
 
-    private List<Pair<String, String>> makePairsForNewCurrency(String currencyName) {
+    private List<Pair<String, String>> createPairsForNewCurrency(String currencyName) {
         List<Currency> currencies = this.get();
         List<Pair<String, String>> pairs = new ArrayList<>();
         currencies.forEach(c -> {
             pairs.add(Pair.of(currencyName, c.getName()));
             pairs.add(Pair.of(c.getName(), currencyName));
         });
+        return pairs;
+    }
+
+    private List<Pair<String, String>> createAllPairs(List<Currency> currencies) {
+        List<Pair<String, String>> pairs = new ArrayList<>();
+
+        int index = 0;
+        int currentIndex = 0;
+
+        while (index < currencies.size() - 1) {
+            currentIndex = index + 1;
+            while (currentIndex < currencies.size()) {
+                Currency firstCurrency = currencies.get(index);
+                Currency secondCurrency = currencies.get(currentIndex);
+                pairs.add(Pair.of(firstCurrency.getName(), secondCurrency.getName()));
+                pairs.add(Pair.of(secondCurrency.getName(), firstCurrency.getName()));
+                currentIndex++;
+            }
+            index++;
+        }
+
         return pairs;
     }
 }

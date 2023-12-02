@@ -1,10 +1,12 @@
 package com.testtask.expensemanager.dao.entyties;
 
+import com.testtask.expensemanager.core.enums.RateStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @Table(name = "currency_rates")
 public class Rate implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 42L;
 
     @Id
@@ -33,15 +36,32 @@ public class Rate implements Serializable {
 
     private BigDecimal value;
 
-    private LocalDateTime date;
+
+    private LocalDateTime datetime;
+
+    @Column(name = "dt_create")
+    private LocalDateTime dtCreate;
+
+    @Version
+    @Column(name = "dt_update")
+    private LocalDateTime dtUpdate;
+
+    @Enumerated(EnumType.STRING)
+    private RateStatus status;
+
+    private Long attempt;
 
 
-    public Rate(UUID uuid, Currency firstCurrency, Currency secondCurrency, BigDecimal value, LocalDateTime date) {
+    public Rate(UUID uuid, Currency firstCurrency, Currency secondCurrency, BigDecimal value, LocalDateTime datetime, LocalDateTime dtCreate, LocalDateTime dtUpdate, RateStatus status, Long attempt) {
         this.uuid = uuid;
         this.firstCurrency = firstCurrency;
         this.secondCurrency = secondCurrency;
         this.value = value;
-        this.date = date;
+        this.datetime = datetime;
+        this.dtCreate = dtCreate;
+        this.dtUpdate = dtUpdate;
+        this.status = status;
+        this.attempt = attempt;
     }
 
     @Override
@@ -49,12 +69,12 @@ public class Rate implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Rate rate = (Rate) o;
-        return Objects.equals(uuid, rate.uuid) && Objects.equals(firstCurrency, rate.firstCurrency) && Objects.equals(secondCurrency, rate.secondCurrency) && Objects.equals(value, rate.value) && Objects.equals(date, rate.date);
+        return Objects.equals(uuid, rate.uuid) && Objects.equals(firstCurrency, rate.firstCurrency) && Objects.equals(secondCurrency, rate.secondCurrency) && Objects.equals(value, rate.value) && Objects.equals(datetime, rate.datetime) && Objects.equals(dtCreate, rate.dtCreate) && Objects.equals(dtUpdate, rate.dtUpdate) && status == rate.status && Objects.equals(attempt, rate.attempt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, firstCurrency, secondCurrency, value, date);
+        return Objects.hash(uuid, firstCurrency, secondCurrency, value, datetime, dtCreate, dtUpdate, status, attempt);
     }
 
     @Override
@@ -64,7 +84,11 @@ public class Rate implements Serializable {
                 ", firstCurrency=" + firstCurrency +
                 ", secondCurrency=" + secondCurrency +
                 ", value=" + value +
-                ", date=" + date +
+                ", dateTime=" + datetime +
+                ", dtCreate=" + dtCreate +
+                ", dtUpdate=" + dtUpdate +
+                ", status=" + status +
+                ", attempt=" + attempt +
                 '}';
     }
 }

@@ -15,7 +15,11 @@ public class RateToRateDtoConverter implements Converter<Rate, RateDto> {
         rateDto.setFirstCurrencyName(source.getFirstCurrency().getName());
         rateDto.setSecondCurrencyName(source.getSecondCurrency().getName());
         rateDto.setValue(source.getValue());
-        rateDto.setDateTime(source.getDate());
+        rateDto.setDateTime(source.getDatetime());
+        rateDto.setStatus(source.getStatus());
+        rateDto.setDtCreate(source.getDtCreate());
+        rateDto.setDtUpdate(source.getDtUpdate());
+
 
         return rateDto;
     }

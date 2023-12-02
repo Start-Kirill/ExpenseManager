@@ -1,6 +1,7 @@
 package com.testtask.expensemanager.core.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.testtask.expensemanager.core.enums.RateStatus;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,23 +18,34 @@ public class RateDto {
 
     private UUID uuid;
 
-    @JsonProperty(namespace = "first_currency_name")
+    @JsonProperty(value = "first_currency_name")
     private String firstCurrencyName;
 
-    @JsonProperty(namespace = "second_currency_name")
+    @JsonProperty(value = "second_currency_name")
     private String secondCurrencyName;
 
     private BigDecimal value;
 
-    @JsonProperty(namespace = "datetime")
+    @JsonProperty(value = "datetime")
     private LocalDateTime dateTime;
 
-    public RateDto(UUID uuid, String firstCurrencyName, String secondCurrencyName, BigDecimal value, LocalDateTime dateTime) {
+    private RateStatus status;
+
+    @JsonProperty(value = "dt_create")
+    private LocalDateTime dtCreate;
+
+    @JsonProperty(value = "dt_update")
+    private LocalDateTime dtUpdate;
+
+    public RateDto(UUID uuid, String firstCurrencyName, String secondCurrencyName, BigDecimal value, LocalDateTime dateTime, RateStatus status, LocalDateTime dtCreate, LocalDateTime dtUpdate) {
         this.uuid = uuid;
         this.firstCurrencyName = firstCurrencyName;
         this.secondCurrencyName = secondCurrencyName;
         this.value = value;
         this.dateTime = dateTime;
+        this.status = status;
+        this.dtCreate = dtCreate;
+        this.dtUpdate = dtUpdate;
     }
 
     @Override
@@ -41,12 +53,12 @@ public class RateDto {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RateDto rateDto = (RateDto) o;
-        return Objects.equals(uuid, rateDto.uuid) && Objects.equals(firstCurrencyName, rateDto.firstCurrencyName) && Objects.equals(secondCurrencyName, rateDto.secondCurrencyName) && Objects.equals(value, rateDto.value) && Objects.equals(dateTime, rateDto.dateTime);
+        return Objects.equals(uuid, rateDto.uuid) && Objects.equals(firstCurrencyName, rateDto.firstCurrencyName) && Objects.equals(secondCurrencyName, rateDto.secondCurrencyName) && Objects.equals(value, rateDto.value) && Objects.equals(dateTime, rateDto.dateTime) && status == rateDto.status && Objects.equals(dtCreate, rateDto.dtCreate) && Objects.equals(dtUpdate, rateDto.dtUpdate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, firstCurrencyName, secondCurrencyName, value, dateTime);
+        return Objects.hash(uuid, firstCurrencyName, secondCurrencyName, value, dateTime, status, dtCreate, dtUpdate);
     }
 
     @Override
@@ -57,6 +69,9 @@ public class RateDto {
                 ", secondCurrencyName='" + secondCurrencyName + '\'' +
                 ", value=" + value +
                 ", dateTime=" + dateTime +
+                ", status=" + status +
+                ", dtCreate=" + dtCreate +
+                ", dtUpdate=" + dtUpdate +
                 '}';
     }
 }

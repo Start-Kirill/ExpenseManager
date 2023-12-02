@@ -231,6 +231,17 @@ components:
             - logref: error
               message:  The server was unable to process the request correctly. Please contact the administrator
   schemas:
+    RateStatus:
+      type: string
+      description: |
+        Rate status:
+          * 'CREATED'
+          * 'DONE'
+          * 'ERROR'
+      enum:
+        - "CREATED"
+        - "DONE"
+        - "ERROR"
     ExpenseCategory:
       type: string
       description: |
@@ -258,6 +269,17 @@ components:
         datetime:
           type: string
           description: "Rate's date"
+        status:
+          $ref: '#/components/schemas/RateStatus'
+        dt_create:
+          type: string
+          description: "Creation date"
+        dt_update:
+          type: string
+          description: "Updating date"
+        attempt:
+          type: integer
+          description: "Attempt number"
     Currency:
       type: object
       description: Currenсy
@@ -356,7 +378,6 @@ components:
         - account_from
         - account_to
       properties:
-        datetime:
         trans_sum:
           type: number
           format: double

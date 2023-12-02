@@ -31,7 +31,7 @@ public class RateCreateDtoToRateConverterTest {
 
         Rate rate = new Rate();
         rate.setValue(bigDecimal);
-        rate.setDate(localDateTime);
+        rate.setDatetime(localDateTime);
 
         Rate actual = this.converter.convert(rateCreateDto);
 

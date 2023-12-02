@@ -4,10 +4,7 @@ import com.testtask.expensemanager.endpoints.web.support.spring.converters.Curre
 import com.testtask.expensemanager.endpoints.web.support.spring.converters.LimitToLimitDtoConverter;
 import com.testtask.expensemanager.endpoints.web.support.spring.converters.RateToRateDtoConverter;
 import com.testtask.expensemanager.endpoints.web.support.spring.converters.TransactionToTransactionDtoConverter;
-import com.testtask.expensemanager.services.support.spring.converters.CurrencyCreateDtoToCurrencyConverter;
-import com.testtask.expensemanager.services.support.spring.converters.LimitCreateDtoToLimitConverter;
-import com.testtask.expensemanager.services.support.spring.converters.RateCreateDtoToRateConverter;
-import com.testtask.expensemanager.services.support.spring.converters.TransactionCreateDtoToTransactionConverter;
+import com.testtask.expensemanager.services.support.spring.converters.*;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,6 +22,8 @@ public class ApplicationConfig implements WebMvcConfigurer {
         registry.addConverter(new TransactionCreateDtoToTransactionConverter());
         registry.addConverter(new CurrencyToCurrencyDtoConverter());
         registry.addConverter(new RateToRateDtoConverter());
+        registry.addConverter(new PairToRateCreateDtoConverter());
+        registry.addConverter(new RatesListToExternalRateCreateDto());
     }
 
 

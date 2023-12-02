@@ -11,7 +11,8 @@ public class RateCreateDtoToRateConverter implements Converter<RateCreateDto, Ra
         Rate rate = new Rate();
 
         rate.setValue(source.getValue());
-        rate.setDate(source.getDateTime());
+        rate.setDatetime(source.getDateTime());
+        rate.setStatus(source.getStatus());
 
         return rate;
     }
