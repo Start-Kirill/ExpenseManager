@@ -3,6 +3,7 @@ package com.testtask.expensemanager.core.utils;
 import com.testtask.expensemanager.core.dtos.ExternalRateDto;
 import com.testtask.expensemanager.core.dtos.ExternalRateValueDto;
 import com.testtask.expensemanager.core.dtos.RateCreateDto;
+import com.testtask.expensemanager.core.enums.RateStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 public class CustomConverter {
 
-    public static List<RateCreateDto> convert(Map<String, ExternalRateDto> externalRates) {
+    public static List<RateCreateDto> convert(Map<String, ExternalRateDto> externalRates, RateStatus status) {
         List<RateCreateDto> rateCreateDtos = new ArrayList<>();
 
         for (Map.Entry<String, ExternalRateDto> entry : externalRates.entrySet()) {
@@ -22,7 +23,7 @@ public class CustomConverter {
                 String[] currencyNames = entry.getKey().split("/");
                 String firstCurrencyName = currencyNames[0];
                 String secondCurrencyName = currencyNames[1];
-                externalRateValueDtos.forEach(ex -> rateCreateDtos.add(new RateCreateDto(firstCurrencyName, secondCurrencyName, ex.getValue(), ex.getDatetime())));
+                externalRateValueDtos.forEach(ex -> rateCreateDtos.add(new RateCreateDto(firstCurrencyName, secondCurrencyName, ex.getValue(), ex.getDatetime(), status)));
 
             }
 

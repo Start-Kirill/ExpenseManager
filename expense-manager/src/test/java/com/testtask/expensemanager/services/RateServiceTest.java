@@ -7,6 +7,7 @@ import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.IExternalRateService;
 import com.testtask.expensemanager.services.exceptions.FailedSaveRateException;
+import com.testtask.expensemanager.services.exceptions.RateDateTimeUpdatesNotMatchException;
 import com.testtask.expensemanager.services.exceptions.SuchRateNotExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.convert.ConversionService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RateServiceTest {
@@ -87,6 +90,59 @@ public class RateServiceTest {
     }
 
     @Test
+    public void shouldUpdate() {
+        Rate rate = mock(Rate.class);
+        when(rate.getUuid()).thenReturn(mock(UUID.class));
+        LocalDateTime now = LocalDateTime.now();
+        when(rate.getDtUpdate()).thenReturn(now);
+        Rate secondRate = mock(Rate.class);
+        when(secondRate.getDtUpdate()).thenReturn(now);
+        when(this.rateDao.findById(any(UUID.class))).thenReturn(Optional.of(secondRate));
+        when(this.rateDao.saveAndFlush(any(Rate.class))).thenReturn(rate);
+
+        Rate actual = this.rateService.update(rate);
+
+        assertNotNull(actual);
+        assertEquals(rate, actual);
+
+    }
+
+    @Test
+    public void shouldThrowWhileUpdate() {
+        Rate rate = mock(Rate.class);
+        when(rate.getUuid()).thenReturn(mock(UUID.class));
+        LocalDateTime now = LocalDateTime.now();
+        when(rate.getDtUpdate()).thenReturn(now);
+        Rate secondRate = mock(Rate.class);
+        when(secondRate.getDtUpdate()).thenReturn(LocalDateTime.now());
+        when(this.rateDao.findById(any(UUID.class))).thenReturn(Optional.of(secondRate));
+
+
+        assertThrows(RateDateTimeUpdatesNotMatchException.class, () -> this.rateService.update(rate));
+
+    }
+
+    @Test
+    public void shouldUpdateAll() {
+        Rate rate = mock(Rate.class);
+        List<Rate> rates = List.of(rate);
+        when(rate.getUuid()).thenReturn(mock(UUID.class));
+        LocalDateTime now = LocalDateTime.now();
+        when(rate.getDtUpdate()).thenReturn(now);
+        Rate secondRate = mock(Rate.class);
+        when(secondRate.getDtUpdate()).thenReturn(now);
+        when(this.rateDao.findById(any(UUID.class))).thenReturn(Optional.of(secondRate));
+        when(this.rateDao.saveAndFlush(any(Rate.class))).thenReturn(rate);
+
+        List<Rate> actual = this.rateService.updateAll(rates);
+
+        assertNotNull(actual);
+        assertEquals(rates, actual);
+
+    }
+
+
+    @Test
     public void shouldGetByUuid() {
         Rate rate = mock(Rate.class);
         when(this.rateDao.findById(any(UUID.class))).thenReturn(Optional.of(rate));
@@ -118,7 +174,7 @@ public class RateServiceTest {
     @Test
     public void shouldGetFirstUpToDate() {
         Rate rate = mock(Rate.class);
-        when(this.rateDao.findTopByOrderByDateDesc()).thenReturn(rate);
+        when(this.rateDao.findTopByOrderByDatetimeDesc()).thenReturn(rate);
 
         Rate actual = this.rateService.getFirstUpToDate();
 
@@ -130,7 +186,7 @@ public class RateServiceTest {
     public void shouldGetFirstUpToDateWithParams() {
         Rate rate = mock(Rate.class);
         when(this.currencyService.get(anyString())).thenReturn(mock(Currency.class));
-        when(this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDateDesc(any(Currency.class), any(Currency.class))).thenReturn(rate);
+        when(this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDatetimeDesc(any(Currency.class), any(Currency.class))).thenReturn(rate);
 
         Rate actual = this.rateService.getFirstUpToDate("USD", "RUB");
 

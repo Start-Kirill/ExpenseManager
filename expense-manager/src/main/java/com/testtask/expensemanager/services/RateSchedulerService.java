@@ -2,26 +2,28 @@ package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.ExternalRateCreateDto;
 import com.testtask.expensemanager.core.dtos.ExternalRateDto;
+import com.testtask.expensemanager.core.dtos.ExternalRateValueDto;
 import com.testtask.expensemanager.core.dtos.RateCreateDto;
+import com.testtask.expensemanager.core.enums.RateStatus;
 import com.testtask.expensemanager.core.utils.CustomConverter;
-import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Rate;
 import com.testtask.expensemanager.services.api.ICurrencyService;
 import com.testtask.expensemanager.services.api.IExternalRateService;
 import com.testtask.expensemanager.services.api.IRateSchedulerService;
 import com.testtask.expensemanager.services.api.IRateService;
-import jakarta.annotation.PostConstruct;
+import com.testtask.expensemanager.services.exceptions.FailedRateAccessException;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.data.util.Pair;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class RateSchedulerService implements IRateSchedulerService {
+
+    private final String STATUS_OK_MESSAGE = "ok";
 
     private final ICurrencyService currencyService;
 
@@ -29,76 +31,103 @@ public class RateSchedulerService implements IRateSchedulerService {
 
     private final IRateService rateService;
 
+    private final ConversionService conversionService;
+
 
     public RateSchedulerService(ICurrencyService currencyService,
                                 IExternalRateService externalRateService,
-                                IRateService rateService) {
+                                IRateService rateService,
+                                ConversionService conversionService) {
         this.currencyService = currencyService;
         this.externalRateService = externalRateService;
         this.rateService = rateService;
-    }
-
-    @PostConstruct
-    void init() {
-        execute();
+        this.conversionService = conversionService;
     }
 
 
-    @Scheduled(cron = "1 0 0 * * ?")
+    @Scheduled(fixedDelay = 70000)
     @Override
     public void execute() {
 
-        Rate firstUpToDate = this.rateService.getFirstUpToDate();
-        List<Currency> currencies = this.currencyService.get();
-        List<RateCreateDto> rateCreateDtos = null;
-
-        if (firstUpToDate == null) {
-            List<Pair<String, String>> pairs = createPairs(currencies);
+        if (this.rateService.isEmpty()) {
+            List<Pair<String, String>> pairs = this.currencyService.getCurrencyPairs();
 
             Map<String, ExternalRateDto> lastThirty = this.externalRateService.getLastThirty(pairs);
 
-            rateCreateDtos = CustomConverter.convert(lastThirty);
-        } else if (!firstUpToDate.getDate().toLocalDate().equals(LocalDate.now())) {
-            ExternalRateCreateDto externalRateCreateDto = createForToday(currencies);
+            List<RateCreateDto> rateCreateDtos = CustomConverter.convert(lastThirty, RateStatus.DONE);
 
-            Map<String, ExternalRateDto> externalRates = this.externalRateService.get(externalRateCreateDto);
-
-            rateCreateDtos = CustomConverter.convert(externalRates);
-        }
-
-        if (rateCreateDtos != null) {
             this.rateService.saveAll(rateCreateDtos);
-        }
-
-    }
-
-    private List<Pair<String, String>> createPairs(List<Currency> currencies) {
-        List<Pair<String, String>> pairs = new ArrayList<>();
-
-        int index = 0;
-        int currentIndex = 0;
-
-        while (index < currencies.size() - 1) {
-            currentIndex = index + 1;
-            while (currentIndex < currencies.size()) {
-                Currency firstCurrency = currencies.get(index);
-                Currency secondCurrency = currencies.get(currentIndex);
-                pairs.add(Pair.of(firstCurrency.getName(), secondCurrency.getName()));
-                pairs.add(Pair.of(secondCurrency.getName(), firstCurrency.getName()));
-                currentIndex++;
+        } else {
+            List<Rate> createdRates = this.rateService.getByStatus(RateStatus.CREATED);
+            ExternalRateCreateDto externalRateCreateDto = this.conversionService.convert(createdRates, ExternalRateCreateDto.class);
+            List<Rate> filledRateChanges = null;
+            if (createdRates != null && !createdRates.isEmpty()) {
+                try {
+                    Map<String, ExternalRateDto> externalRateDtoMap = this.externalRateService.get(externalRateCreateDto);
+                    filledRateChanges = fillRateChanges(createdRates, externalRateDtoMap);
+                } catch (FailedRateAccessException ex) {
+                    filledRateChanges = fillRateChangesInCaseError(createdRates);
+                } finally {
+                    this.rateService.updateAll(filledRateChanges);
+                }
             }
-            index++;
         }
-
-        return pairs;
     }
 
-    private ExternalRateCreateDto createForToday(List<Currency> currencies) {
-        List<Pair<String, String>> pairs = createPairs(currencies);
-        ExternalRateCreateDto externalRateCreateDto = new ExternalRateCreateDto();
-        externalRateCreateDto.setCurrencyPairs(pairs);
-        externalRateCreateDto.setStartDate(LocalDate.now());
-        externalRateCreateDto.setEndDate(LocalDate.now().plusDays(1));
-        return externalRateCreateDto;
+
+    private List<Rate> fillRateChanges(List<Rate> rates, Map<String, ExternalRateDto> externalRates) {
+        Map<Integer, Rate> integerRateMap = convert(rates);
+        externalRates.forEach((key, value) -> {
+            String status = value.getStatus();
+            if (STATUS_OK_MESSAGE.equalsIgnoreCase(status)) {
+                String[] currencies = key.split("/");
+                String firstCurrency = currencies[0];
+                String secondCurrency = currencies[1];
+                List<ExternalRateValueDto> externalRateValueDtos = value.getValues();
+                if (externalRateValueDtos != null) {
+                    externalRateValueDtos.forEach(v -> {
+                        LocalDate dateTime = v.getDatetime().toLocalDate();
+                        int hash = Objects.hash(firstCurrency, secondCurrency, dateTime);
+                        if (integerRateMap.containsKey(hash)) {
+                            Rate rate = integerRateMap.get(hash);
+                            rate.setValue(v.getValue());
+                            rate.setStatus(RateStatus.DONE);
+                        }
+                    });
+                }
+            }
+        });
+        rates.forEach(r -> {
+            if (r.getValue() == null) {
+                if (r.getAttempt() < 5) {
+                    r.setAttempt(r.getAttempt() + 1);
+                } else {
+                    r.setStatus(RateStatus.ERROR);
+                }
+            }
+        });
+        return rates;
+    }
+
+    private Map<Integer, Rate> convert(List<Rate> rates) {
+        Map<Integer, Rate> integerRateHashMap = new HashMap<>();
+        rates.forEach(r -> {
+            int hash = Objects.hash(r.getFirstCurrency().getName(), r.getSecondCurrency().getName(), r.getDatetime().toLocalDate());
+            integerRateHashMap.put(hash, r);
+        });
+        return integerRateHashMap;
+    }
+
+
+    private List<Rate> fillRateChangesInCaseError(List<Rate> rates) {
+        rates.forEach(r -> {
+            Long attempt = r.getAttempt();
+            if (attempt < 5) {
+                r.setAttempt(attempt + 1);
+            } else {
+                r.setStatus(RateStatus.ERROR);
+            }
+        });
+        return rates;
     }
 }

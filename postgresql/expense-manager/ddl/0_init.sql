@@ -44,8 +44,11 @@ CREATE TABLE app.currency_rates
     uuid uuid,
     first_currency_uuid uuid NOT NULL,
     second_currency_uuid uuid NOT NULL,
-    value numeric NOT NULL,
-    date timestamp without time zone NOT NULL,
+    value numeric,
+    datetime_create timestamp without time zone NOT NULL,
+    datetime_create timestamp without time zone NOT NULL,
+    status text NOT NULL,
+    attempt bigint NOT NULL,
     PRIMARY KEY (uuid),
     FOREIGN KEY (first_currency_uuid)
         REFERENCES app.currencies (uuid) MATCH SIMPLE

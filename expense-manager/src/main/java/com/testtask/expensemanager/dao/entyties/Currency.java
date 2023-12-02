@@ -1,6 +1,5 @@
 package com.testtask.expensemanager.dao.entyties;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -8,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
@@ -19,12 +19,12 @@ import java.util.UUID;
 @Table(name = "currencies")
 public class Currency implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 42L;
 
     @Id
     private UUID uuid;
 
-    @Column
     private String name;
 
 
