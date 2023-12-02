@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface IRateDao extends JpaRepository<Rate, UUID> {
     Rate findTopByOrderByDatetimeDesc();
 
-    Rate findTopByFirstCurrencyAndSecondCurrencyOrderByDatetimeDesc(Currency firstCurrency, Currency secondCurrency);
+    Rate findTopByFirstCurrencyAndSecondCurrencyAndStatusOrderByDatetimeDesc(Currency firstCurrency, Currency secondCurrency, RateStatus status);
 
     List<Rate> findAllByStatus(RateStatus status);
 

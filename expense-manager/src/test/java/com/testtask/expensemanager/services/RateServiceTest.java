@@ -1,6 +1,7 @@
 package com.testtask.expensemanager.services;
 
 import com.testtask.expensemanager.core.dtos.RateCreateDto;
+import com.testtask.expensemanager.core.enums.RateStatus;
 import com.testtask.expensemanager.dao.api.IRateDao;
 import com.testtask.expensemanager.dao.entyties.Currency;
 import com.testtask.expensemanager.dao.entyties.Rate;
@@ -186,7 +187,7 @@ public class RateServiceTest {
     public void shouldGetFirstUpToDateWithParams() {
         Rate rate = mock(Rate.class);
         when(this.currencyService.get(anyString())).thenReturn(mock(Currency.class));
-        when(this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDatetimeDesc(any(Currency.class), any(Currency.class))).thenReturn(rate);
+        when(this.rateDao.findTopByFirstCurrencyAndSecondCurrencyAndStatusOrderByDatetimeDesc(any(Currency.class), any(Currency.class), any(RateStatus.class))).thenReturn(rate);
 
         Rate actual = this.rateService.getFirstUpToDate("USD", "RUB");
 
