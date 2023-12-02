@@ -158,7 +158,7 @@ public class RateService implements IRateService {
     public Rate getFirstUpToDate(String firstCurrencyName, String secondCurrencyName) {
         Currency firstCurrency = this.currencyService.get(firstCurrencyName);
         Currency secondCurrency = this.currencyService.get(secondCurrencyName);
-        Rate rate = this.rateDao.findTopByFirstCurrencyAndSecondCurrencyOrderByDatetimeDesc(firstCurrency, secondCurrency);
+        Rate rate = this.rateDao.findTopByFirstCurrencyAndSecondCurrencyAndStatusOrderByDatetimeDesc(firstCurrency, secondCurrency, RateStatus.DONE);
         return rate;
     }
 
