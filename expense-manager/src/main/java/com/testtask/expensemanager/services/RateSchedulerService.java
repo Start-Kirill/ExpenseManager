@@ -59,9 +59,9 @@ public class RateSchedulerService implements IRateSchedulerService {
             this.rateService.saveAll(rateCreateDtos);
         } else {
             List<Rate> createdRates = this.rateService.getByStatus(RateStatus.CREATED);
-            ExternalRateCreateDto externalRateCreateDto = this.conversionService.convert(createdRates, ExternalRateCreateDto.class);
-            List<Rate> filledRateChanges = null;
             if (createdRates != null && !createdRates.isEmpty()) {
+                ExternalRateCreateDto externalRateCreateDto = this.conversionService.convert(createdRates, ExternalRateCreateDto.class);
+                List<Rate> filledRateChanges = null;
                 try {
                     Map<String, ExternalRateDto> externalRateDtoMap = this.externalRateService.get(externalRateCreateDto);
                     filledRateChanges = fillRateChanges(createdRates, externalRateDtoMap);

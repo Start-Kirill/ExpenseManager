@@ -142,7 +142,6 @@ public class TransactionService implements ITransactionService {
                 BigDecimal fromUsdRate = rate.getValue();
                 transSumUsd = transSum.divide(fromUsdRate, RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP);
             } else {
-                this.rateSchedulerService.execute();
                 throw new FailedRateAccessException(List.of(new ErrorResponse(ErrorType.ERROR, "The server was unable to process the request correctly. Please try again later or contact administrator")));
             }
         }
