@@ -31,8 +31,6 @@ public class TransactionService implements ITransactionService {
 
     private static final String ACCOUNT_TO_FIELD_NAME = "account_to";
 
-    private static final String DATE_TIME_FIELD_NAME = "datetime";
-
     private static final String DOLLAR_USA_CURRENCY_NAME = "USD";
 
     private final ITransactionDao transactionDao;
@@ -45,20 +43,17 @@ public class TransactionService implements ITransactionService {
 
     private final ConversionService conversionService;
 
-    private final IRateSchedulerService rateSchedulerService;
 
     public TransactionService(ITransactionDao transactionDao,
                               ConversionService conversionService,
                               ICurrencyService currencyService,
                               ILimitService limitService,
-                              IRateService rateService,
-                              IRateSchedulerService rateSchedulerService) {
+                              IRateService rateService) {
         this.transactionDao = transactionDao;
         this.conversionService = conversionService;
         this.currencyService = currencyService;
         this.limitService = limitService;
         this.rateService = rateService;
-        this.rateSchedulerService = rateSchedulerService;
     }
 
 

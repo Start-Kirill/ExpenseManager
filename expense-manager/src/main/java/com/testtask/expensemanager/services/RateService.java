@@ -38,16 +38,13 @@ public class RateService implements IRateService {
 
     private final ICurrencyService currencyService;
 
-    private final IExternalRateService externalRateService;
 
     public RateService(IRateDao rateDao,
                        ConversionService conversionService,
-                       ICurrencyService currencyService,
-                       IExternalRateService externalRateService) {
+                       ICurrencyService currencyService) {
         this.rateDao = rateDao;
         this.conversionService = conversionService;
         this.currencyService = currencyService;
-        this.externalRateService = externalRateService;
     }
 
     @Transactional
